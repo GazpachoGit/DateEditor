@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'test-app';
+  odds: number[] = []
+  emms: number[] = []
+  onValue(data: { value: number }) {
+    if (data.value % 2 == 0) this.odds.push(data.value)
+    else this.emms.push(data.value)
+  }
 }
