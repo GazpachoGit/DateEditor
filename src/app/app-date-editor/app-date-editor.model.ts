@@ -5,3 +5,4 @@ export interface IFormat {
     minValue: string,
     maxValue?: string
 }
+export const SEPARATOR = ":" 

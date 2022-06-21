@@ -1,13 +1,15 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { IFormatMap } from './app-date-editor.model';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { IFormatMap, SEPARATOR } from './app-date-editor.model';
 
 @Component({
   selector: 'app-date-editor',
   templateUrl: './app-date-editor.component.html',
   styleUrls: ['./app-date-editor.component.css']
 })
-export class AppDateEditorComponent implements OnInit {
-  value: string = "hello"
+export class AppDateEditorComponent {
+  @ViewChild('textInput') _textArea: ElementRef;
+  value: string = "21:06:2022"
+  position: number
   private formatMap: IFormatMap = {
     "dd": {
       maxValue: "01",
@@ -36,10 +38,9 @@ export class AppDateEditorComponent implements OnInit {
   private _format: Array<string> = []
   updateValue(event: Event) {
     let target = event.currentTarget as HTMLInputElement
-    let position = target.selectionStart as number
-    position++
-    this.value = target.value.slice(0, position - 1) + target.value.slice(position);
-    target.setSelectionRange(position, position)
+    this.position = target.selectionStart as number
+    this.position++
+    this.value = target.value.slice(0, this.position - 1) + target.value.slice(this.position);
   }
 
   @Input('format')
@@ -48,7 +49,14 @@ export class AppDateEditorComponent implements OnInit {
   }
   constructor() { }
 
-  ngOnInit(): void {
+  ngAfterViewChecked() {
+    let el = this._textArea.nativeElement as HTMLInputElement
+    let a = this.value[this.position]
+    if (this.value[this.position] == SEPARATOR) {
+      el.setSelectionRange(this.position, this.position)
+    } else {
+      el.setSelectionRange(this.position - 1, this.position - 1)
+    }
   }
 
 }
