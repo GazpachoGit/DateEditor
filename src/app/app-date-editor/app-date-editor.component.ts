@@ -1,61 +1,45 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { IFormatMap, SEPARATOR } from './app-date-editor.model';
+import { formatMap, IFormatMap, SEPARATOR } from './app-date-editor.model';
 
 @Component({
   selector: 'app-date-editor',
   templateUrl: './app-date-editor.component.html',
   styleUrls: ['./app-date-editor.component.css']
 })
+//TODO
+//игнорировать delete и backspace буквы и прочее
 export class AppDateEditorComponent {
   @ViewChild('textInput') _textArea: ElementRef;
   value: string = "21:06:2022"
   position: number
-  private formatMap: IFormatMap = {
-    "dd": {
-      maxValue: "01",
-      minValue: "31"
-    },
-    "MM": {
-      minValue: "01",
-      maxValue: "12"
-    },
-    "yyyy": {
-      minValue: "0000"
-    },
-    "hh": {
-      minValue: "00",
-      maxValue: "23"
-    },
-    "mm": {
-      minValue: "00",
-      maxValue: "59"
-    },
-    "ss": {
-      minValue: "00",
-      maxValue: "59"
-    }
-  }
-  private _format: Array<string> = []
-  updateValue(event: Event) {
-    let target = event.currentTarget as HTMLInputElement
-    this.position = target.selectionStart as number
-    this.position++
-    this.value = target.value.slice(0, this.position - 1) + target.value.slice(this.position);
-  }
+  _format: RegExp
+
+
 
   @Input('format')
   set format(value: string) {
-    this._format = value.split(':')
+    let formatArray = value.split(SEPARATOR)
+    let output: string = ""
+    formatArray.forEach((f, i) => {
+      output += formatMap[f].regExp
+      if (i != formatArray.length - 1) output += SEPARATOR
+    })
+    this._format = new RegExp(output)
   }
-  constructor() { }
+
+  updateValue(event: Event) {
+    let target = event.currentTarget as HTMLInputElement
+    this.position = target.selectionStart as number
+    target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+    this.value = target.value
+  }
 
   ngAfterViewChecked() {
     let el = this._textArea.nativeElement as HTMLInputElement
-    let a = this.value[this.position]
     if (this.value[this.position] == SEPARATOR) {
-      el.setSelectionRange(this.position, this.position)
+      el.setSelectionRange(this.position + 1, this.position + 1)
     } else {
-      el.setSelectionRange(this.position - 1, this.position - 1)
+      el.setSelectionRange(this.position, this.position)
     }
   }
 
