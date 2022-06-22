@@ -1,3 +1,3 @@
-<input #textInput type="text" [value]="value" (keyup)="updateValue($event)" />
+<input #textInput type="text" [value]="value" (keydown)="updateValue($event)"/>
 <p>{{value}}</p>
 <p>{{internalValue}}</p>
