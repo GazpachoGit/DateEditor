@@ -25,19 +25,61 @@ export class AppDateEditorComponent {
     this.regExp = new RegExp(output)
   }
 
-  updateValue(event: Event) {
+  updateValue(event: KeyboardEvent) {
+    console.log(event.code)
     let target = event.currentTarget as HTMLInputElement
     this.position = target.selectionStart as number
-    if (target.value.length > this.format.length) {
-      target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
-      this.value = target.value
-    } else {
-      if (this.format[this.position] == SEPARATOR && target.value[this.position] != SEPARATOR) {
-        target.value = target.value.slice(0, this.position) + SEPARATOR + target.value.slice(this.position)
+    if (/^[0-9]$/i.test(event.key)) {
+      event.preventDefault()
+      event.stopPropagation()
+      // //ввод нового
+      if (this.position == target.value.length) {
+        if (this.format[this.position] == SEPARATOR && target.value[this.position] != SEPARATOR) {
+          target.value = target.value.slice(0, this.position) + SEPARATOR + target.value.slice(this.position)
+        }
+        //редактирование
+      } else if (this.position < target.value.length) {
+        target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
       }
-      this.value = target.value
+    } else if (event.key == 'Backspace') {
+      event.preventDefault()
+      event.stopPropagation()
+      if (target.value.length) {
+        if (this.format[this.position] != SEPARATOR) {
+          target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
+        } else {
+          target.value = target.value.slice(0, this.position) + SEPARATOR + target.value.slice(this.position)
+        }
+      }
+    } else if (event.key == 'Delete') {
+      event.preventDefault()
+      event.stopPropagation()
+      if (target.value.length) {
+        if (this.format[this.position + 1] != SEPARATOR) {
+          target.value = target.value.slice(0, this.position + 1) + "0" + target.value.slice(this.position + 1)
+        } else {
+          target.value = target.value.slice(0, this.position + 1) + SEPARATOR + target.value.slice(this.position + 1)
+        }
+      }
     }
+    this.value = target.value
 
+
+    // //ввод нового
+    // if (this.position == target.value.length) {
+    //   if (this.format[this.position] == SEPARATOR && target.value[this.position] != SEPARATOR) {
+    //     target.value = target.value.slice(0, this.position) + SEPARATOR + target.value.slice(this.position)
+    //   }
+    // }
+    // //редактирование
+    // if (this.position < target.value.length) {
+    //   if (this.format[this.position] != SEPARATOR) {
+    //     target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
+    //   } else {
+    //     target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+    //   }
+    // }
+    // this.value = target.value
   }
 
   ngAfterViewChecked() {

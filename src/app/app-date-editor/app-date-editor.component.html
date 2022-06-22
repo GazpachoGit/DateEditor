@@ -1,2 +1,2 @@
-<input #textInput type="text" [value]="value" (input)="updateValue($event)" />
+<input #textInput type="text" [value]="value" (keyup)="updateValue($event)" />
 {{value}}
