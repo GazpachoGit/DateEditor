@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { formatMap, IFormatMap, SEPARATOR } from './app-date-editor.model';
 
 @Component({
@@ -12,26 +12,32 @@ export class AppDateEditorComponent {
   @ViewChild('textInput') _textArea: ElementRef;
   value: string = "21:06:2022"
   position: number
-  _format: RegExp
+  regExp: RegExp
 
-
-
-  @Input('format')
-  set format(value: string) {
-    let formatArray = value.split(SEPARATOR)
+  @Input('format') format: string
+  ngInit() {
+    let formatArray = this.format.split(SEPARATOR)
     let output: string = ""
     formatArray.forEach((f, i) => {
       output += formatMap[f].regExp
       if (i != formatArray.length - 1) output += SEPARATOR
     })
-    this._format = new RegExp(output)
+    this.regExp = new RegExp(output)
   }
 
   updateValue(event: Event) {
     let target = event.currentTarget as HTMLInputElement
     this.position = target.selectionStart as number
-    target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
-    this.value = target.value
+    if (target.value.length > this.format.length) {
+      target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+      this.value = target.value
+    } else {
+      if (this.format[this.position] == SEPARATOR && target.value[this.position] != SEPARATOR) {
+        target.value = target.value.slice(0, this.position) + SEPARATOR + target.value.slice(this.position)
+      }
+      this.value = target.value
+    }
+
   }
 
   ngAfterViewChecked() {
