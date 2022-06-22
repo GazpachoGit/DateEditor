@@ -125,12 +125,12 @@ export class AppDateEditorComponent {
   }
   updateInternalValue() {
     let dp = this.value.split(SEPARATOR)
-    let date = new Date(+dp[2], +dp[1] - 1, +dp[0], +dp[3], +dp[4], +dp[5])
+    let date = new Date(+dp[2], +dp[1] - 1, +dp[0], +dp[3] || 0, +dp[4] || 0, +dp[5] || 0)
     let numberDate = date.getTime()
-    if (this.inputMode == 'nano') {
-      numberDate = numberDate * Math.pow(10, 6)
-      numberDate += +dp[6]
-      this.internalValue = numberDate.toString()
+    if (this.inputMode == 'nano' && dp[6]) {
+      let stringDate = numberDate.toString().slice(0, -3)
+      stringDate += +dp[6]
+      this.internalValue = stringDate
     } else {
       this.internalValue = numberDate.toString()
     }

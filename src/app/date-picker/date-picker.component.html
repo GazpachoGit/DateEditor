@@ -1,0 +1,9 @@
+<div class="calendar">
+    <span *ngFor='let weekDay of weekDaysName' class="day">
+      {{ weekDay }}
+    </span>
+  
+    <span *ngFor='let day of monthDays' class="day">
+      {{ day.Date }}
+    </span>
+  </div>
