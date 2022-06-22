@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { AppDateEditorComponent } from './app-date-editor/app-date-editor.component';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,7 @@ import { AppDateEditorComponent } from './app-date-editor/app-date-editor.compon
   imports: [
     BrowserModule
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

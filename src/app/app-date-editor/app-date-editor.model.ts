@@ -2,9 +2,10 @@ export const SEPARATOR = ":"
 export const FORMAT_dd = 'dd'
 export const FORMAT_MM = 'MM'
 export const FORMAT_yyyy = 'yyyy'
-export const FORMAT_hh = 'hh'
+export const FORMAT_hh = 'HH'
 export const FORMAT_mm = 'mm'
 export const FORMAT_ss = 'ss'
+export const FORMAT_nn = 'nnnnnnnnn'
 
 export interface IFormatMap {
     [name: string]: IFormat;
@@ -31,5 +32,8 @@ export const formatMap: IFormatMap = {
     },
     [FORMAT_ss]: {
         regExp: "([0-5][0-9])"
+    },
+    [FORMAT_nn]: {
+        regExp: "(\\d{9}-)"
     }
 }
