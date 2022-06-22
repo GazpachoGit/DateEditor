@@ -62,8 +62,25 @@ export class AppDateEditorComponent {
         }
       }
     }
-    this.value = target.value
 
+    if (target.value[this.position] == SEPARATOR) {
+      target.setSelectionRange(this.position + 1, this.position + 1)
+    } else {
+      target.setSelectionRange(this.position, this.position)
+    }
+
+    if (event.key == 'ArrowRight') {
+      if (target.value[this.position] == SEPARATOR) {
+        target.setSelectionRange(this.position + 1, this.position + 1)
+      }
+    }
+    if (event.key == 'ArrowLeft') {
+      if (target.value[this.position] == SEPARATOR) {
+        target.setSelectionRange(this.position - 1, this.position - 1)
+      }
+    }
+
+    this.value = target.value
 
     // //ввод нового
     // if (this.position == target.value.length) {
@@ -82,13 +99,13 @@ export class AppDateEditorComponent {
     // this.value = target.value
   }
 
-  ngAfterViewChecked() {
-    let el = this._textArea.nativeElement as HTMLInputElement
-    if (this.value[this.position] == SEPARATOR) {
-      el.setSelectionRange(this.position + 1, this.position + 1)
-    } else {
-      el.setSelectionRange(this.position, this.position)
-    }
-  }
+  // ngAfterViewChecked() {
+  //   let el = this._textArea.nativeElement as HTMLInputElement
+  //   if (this.value[this.position] == SEPARATOR) {
+  //     el.setSelectionRange(this.position + 1, this.position + 1)
+  //   } else {
+  //     el.setSelectionRange(this.position, this.position)
+  //   }
+  // }
 
 }
