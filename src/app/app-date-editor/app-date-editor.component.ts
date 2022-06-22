@@ -62,7 +62,6 @@ export class AppDateEditorComponent {
     let target = event.currentTarget as HTMLInputElement
     this.position = target.selectionStart as number
     if (/^[0-9]$/i.test(event.key)) {
-      //event.preventDefault()
       //ввод нового
       if (this.position == target.value.length) {
         if (target.value.length == this.format.length) return
@@ -79,7 +78,6 @@ export class AppDateEditorComponent {
       }
       this.updateCaretPostion(target, this.position)
     } else if (event.key == 'Backspace') {
-      //event.preventDefault()
       if (<number>target.selectionEnd == <number>target.selectionStart) {
         if (this.format[this.position - 1] != SEPARATOR) {
           target.value = target.value.slice(0, this.position - 1) + "0" + target.value.slice(this.position)
@@ -89,7 +87,6 @@ export class AppDateEditorComponent {
       }
       target.setSelectionRange(this.position, this.position)
     } else if (event.key == 'Delete') {
-      //event.preventDefault()
       if (<number>target.selectionEnd == <number>target.selectionStart) {
         if (this.format[this.position] != SEPARATOR) {
           target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position + 1)
@@ -103,7 +100,6 @@ export class AppDateEditorComponent {
 
 
     if (event.key == 'ArrowRight') {
-      //event.preventDefault()
       if (target.value[this.position + 1] == SEPARATOR) {
         target.setSelectionRange(this.position + 2, this.position + 2)
       } else {
@@ -111,7 +107,6 @@ export class AppDateEditorComponent {
       }
     }
     if (event.key == 'ArrowLeft') {
-      //event.preventDefault()
       if (target.value[this.position - 1] == SEPARATOR) {
         target.setSelectionRange(this.position - 2, this.position - 2)
       } else {
@@ -139,5 +134,11 @@ export class AppDateEditorComponent {
     } else {
       this.internalValue = numberDate.toString()
     }
+  }
+  onSelect(event: Event) {
+    let target = event.target as HTMLInputElement
+    let start = target.selectionStart as number
+    let end = target.selectionEnd as number
+    if (end - start != target.value.length) target.setSelectionRange(target.selectionStart, target.selectionStart)
   }
 }
