@@ -5,7 +5,7 @@ export const FORMAT_yyyy = 'yyyy'
 export const FORMAT_hh = 'HH'
 export const FORMAT_mm = 'mm'
 export const FORMAT_ss = 'ss'
-export const FORMAT_nn = 'nnnnnnnnn'
+export const FORMAT_SSS = 'SSS'
 export const SEPARATOR_TYPE = 'SEPARATOR_TYPE'
 
 export const formatArray = [FORMAT_dd, FORMAT_MM, FORMAT_yyyy, FORMAT_hh, FORMAT_mm, FORMAT_ss]
@@ -29,7 +29,7 @@ export const formatMap: IFormatMap = {
     },
     [FORMAT_yyyy]: {
         regExp: "(\\d{4})",
-        regExps: ["\\d", "\\d", "\\d", "\\d"]
+        regExps: ["(\\d)", "(\\d)", "(\\d)", "(\\d)"]
     },
     [FORMAT_hh]: {
         regExp: "(([0-1][0-9])|(2[0-3]))",
@@ -42,6 +42,10 @@ export const formatMap: IFormatMap = {
     [FORMAT_ss]: {
         regExp: "([0-5][0-9])",
         regExps: ["([0-5])", "([0-9])"]
+    },
+    [FORMAT_SSS]: {
+        regExp: "(\\d{3})",
+        regExps: ["(\\d)", "(\\d)", "(\\d)"]
     }
 }
 export interface FormatElement {
@@ -101,7 +105,7 @@ export function analizeFormat(format: string): Array<FormatElement> {
             })))
         }
     }
-    let trimedFormat = format.slice(temp[0].startIndex, temp[temp.length - 1].endIndex + 1)
+    //let trimedFormat = format.slice(temp[0].startIndex, temp[temp.length - 1].endIndex + 1)
     return output
     //order by startIndex
     //get sep between end and next start

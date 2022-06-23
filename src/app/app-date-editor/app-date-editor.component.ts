@@ -11,6 +11,7 @@ import { DatePipe } from '@angular/common';
 //игнорировать delete и backspace буквы и прочее
 export class AppDateEditorComponent {
   @ViewChild('textInput') _textArea: ElementRef;
+  private _format: string
   value: string = ""
   internalValue: string | null = null
   position: number
@@ -20,7 +21,13 @@ export class AppDateEditorComponent {
   get invalidMessage() {
     return `invalid sections: ${this.inValidFormats.join(',')}`
   }
-  @Input('format') format: string
+  @Input('format')
+  set format(value: string) {
+    this._format = value
+  }
+  get format() {
+    return this._format
+  }
   @Input('value') dateValue: string
   @Input('mode') inputMode: string
 
