@@ -2,7 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 
 interface Day {
   Date?: number,
-  WeekDay?: number
+  WeekDay?: number,
+  monthIndex?: number
 }
 
 @Component({

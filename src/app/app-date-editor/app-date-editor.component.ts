@@ -12,9 +12,10 @@ import { DatePipe } from '@angular/common';
 export class AppDateEditorComponent {
   @ViewChild('textInput') _textArea: ElementRef;
   value: string = ""
-  internalValue: string = ""
+  internalValue: string | null = null
   position: number
   regExp: RegExp
+  isValid: boolean = false
   @Input('format') format: string
   @Input('value') dateValue: string
   @Input('mode') inputMode: string
@@ -24,6 +25,7 @@ export class AppDateEditorComponent {
   ngOnInit() {
     this.regExp = this.getCurrentRegExp()
     this.value = this.getStringValue(this.dateValue)
+    this.isValid = this.doValidation()
     console.log(this.value)
   }
 
@@ -37,24 +39,27 @@ export class AppDateEditorComponent {
     return new RegExp(output)
   }
   getStringValue(value: string): string {
-    this.internalValue = value
-    if (this.inputMode == 'nano') {
-      let nanoPart = value.slice(-9)
-      let milisec = value.slice(0, -6)
-      if (this.format.includes('n')) {
-        let commonDate = this.datePipe.transform(milisec, this.format.slice(0, -10)) as string;
-        return commonDate + ':' + nanoPart
+    if (value) {
+      this.internalValue = value
+      if (this.inputMode == 'nano') {
+        let nanoPart = value.slice(-9)
+        let milisec = value.slice(0, -6)
+        if (this.format.includes('n')) {
+          let commonDate = this.datePipe.transform(milisec, this.format.slice(0, -10)) as string;
+          return commonDate + ':' + nanoPart
+        } else {
+          return this.datePipe.transform(milisec, this.format) as string;
+        }
       } else {
-        return this.datePipe.transform(milisec, this.format) as string;
-      }
-    } else {
-      if (this.format.includes('n')) {
-        let commonDate = this.datePipe.transform(value, this.format.slice(0, -10)) as string;
-        return commonDate + ':' + '0'.repeat(9)
-      } else {
-        return this.datePipe.transform(value, this.format) as string
+        if (this.format.includes('n')) {
+          let commonDate = this.datePipe.transform(value, this.format.slice(0, -10)) as string;
+          return commonDate + ':' + '0'.repeat(9)
+        } else {
+          return this.datePipe.transform(value, this.format) as string
+        }
       }
     }
+    return ""
   }
 
   updateValue(event: KeyboardEvent) {
@@ -97,8 +102,6 @@ export class AppDateEditorComponent {
       target.setSelectionRange(this.position, this.position)
     }
 
-
-
     if (event.key == 'ArrowRight') {
       if (target.value[this.position + 1] == SEPARATOR) {
         target.setSelectionRange(this.position + 2, this.position + 2)
@@ -114,7 +117,14 @@ export class AppDateEditorComponent {
       }
     }
     this.value = target.value
-    this.updateInternalValue()
+    if (this.doValidation()) {
+      this.updateInternalValue()
+      this.isValid = true
+    } else {
+      this.internalValue = null
+      this.isValid = false
+    }
+
   }
   private updateCaretPostion(target: HTMLInputElement, position: number) {
     if (target.value[position + 1] == SEPARATOR) {
@@ -125,15 +135,23 @@ export class AppDateEditorComponent {
   }
   updateInternalValue() {
     let dp = this.value.split(SEPARATOR)
-    let date = new Date(+dp[2], +dp[1] - 1, +dp[0], +dp[3] || 0, +dp[4] || 0, +dp[5] || 0)
-    let numberDate = date.getTime()
-    if (this.inputMode == 'nano' && dp[6]) {
-      let stringDate = numberDate.toString().slice(0, -3)
-      stringDate += +dp[6]
-      this.internalValue = stringDate
+    if (dp.length > 2) {
+      let date = new Date(+dp[2], +dp[1] - 1, +dp[0], +dp[3] || 0, +dp[4] || 0, +dp[5] || 0)
+      let numberDate = date.getTime()
+      if (this.inputMode == 'nano' && dp[6]) {
+        let stringDate = numberDate.toString().slice(0, -3)
+        stringDate += +dp[6]
+        this.internalValue = stringDate
+      } else {
+        this.internalValue = numberDate.toString()
+      }
     } else {
-      this.internalValue = numberDate.toString()
+      this.internalValue = null
     }
+
+  }
+  doValidation() {
+    return this.regExp.test(this.value)
   }
   onSelect(event: Event) {
     let target = event.target as HTMLInputElement

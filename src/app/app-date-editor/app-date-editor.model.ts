@@ -22,7 +22,7 @@ export const formatMap: IFormatMap = {
         regExp: "(0[1-9]|1[0-2])"
     },
     [FORMAT_yyyy]: {
-        regExp: "(\\d{4}-)"
+        regExp: "(\\d{4})"
     },
     [FORMAT_hh]: {
         regExp: "(([0-1][0-9])|(2[0-3]))"
@@ -34,6 +34,6 @@ export const formatMap: IFormatMap = {
         regExp: "([0-5][0-9])"
     },
     [FORMAT_nn]: {
-        regExp: "(\\d{9}-)"
+        regExp: "(\\d{9})"
     }
 }
