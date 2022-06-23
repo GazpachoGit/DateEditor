@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { formatMap, IFormatMap, SEPARATOR } from './app-date-editor.model';
+import { analizeFormat, FormatElement, formatMap, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -14,8 +14,12 @@ export class AppDateEditorComponent {
   value: string = ""
   internalValue: string | null = null
   position: number
+  formatArray: Array<FormatElement>
   regExp: RegExp
-  isValid: boolean = false
+  inValidFormats: string[] = []
+  get invalidMessage() {
+    return `invalid sections: ${this.inValidFormats.join(',')}`
+  }
   @Input('format') format: string
   @Input('value') dateValue: string
   @Input('mode') inputMode: string
@@ -23,41 +27,28 @@ export class AppDateEditorComponent {
   constructor(private datePipe: DatePipe) { }
 
   ngOnInit() {
+    this.formatArray = analizeFormat(this.format)
     this.regExp = this.getCurrentRegExp()
     this.value = this.getStringValue(this.dateValue)
-    this.isValid = this.doValidation()
-    console.log(this.value)
   }
 
   getCurrentRegExp(): RegExp {
-    let formatArray = this.format.split(SEPARATOR)
     let output: string = ""
-    formatArray.forEach((f, i) => {
-      output += formatMap[f].regExp
-      if (i != formatArray.length - 1) output += SEPARATOR
+    this.formatArray.forEach(f => {
+      if (f.type != SEPARATOR_TYPE && f.innerIndex == 0) {
+        output += `${f.formatRegExp}${f.separator}`
+      }
     })
     return new RegExp(output)
   }
   getStringValue(value: string): string {
     if (value) {
       this.internalValue = value
+      let milisec = value
       if (this.inputMode == 'nano') {
-        let nanoPart = value.slice(-9)
-        let milisec = value.slice(0, -6)
-        if (this.format.includes('n')) {
-          let commonDate = this.datePipe.transform(milisec, this.format.slice(0, -10)) as string;
-          return commonDate + ':' + nanoPart
-        } else {
-          return this.datePipe.transform(milisec, this.format) as string;
-        }
-      } else {
-        if (this.format.includes('n')) {
-          let commonDate = this.datePipe.transform(value, this.format.slice(0, -10)) as string;
-          return commonDate + ':' + '0'.repeat(9)
-        } else {
-          return this.datePipe.transform(value, this.format) as string
-        }
+        milisec = value.slice(0, -6)
       }
+      return this.datePipe.transform(milisec, this.format) as string;
     }
     return ""
   }
@@ -67,70 +58,81 @@ export class AppDateEditorComponent {
     let target = event.currentTarget as HTMLInputElement
     this.position = target.selectionStart as number
     if (/^[0-9]$/i.test(event.key)) {
-      //ввод нового
-      if (this.position == target.value.length) {
-        if (target.value.length == this.format.length) return
-        target.value += event.key
-        let position = this.position + 1
-        if (this.format[position] == SEPARATOR && target.value[position] != SEPARATOR) {
-          target.value += SEPARATOR
+      let formatPostion = this.formatArray[this.position]
+      if (formatPostion && formatPostion.localRegExp && formatPostion.localRegExp.test(event.key)) {
+        //ввод нового
+        if (this.position == target.value.length) {
+          if (target.value.length == this.format.length) return
+          target.value += event.key
+          let position = this.position + 1
+          if (this.formatArray[position].type == SEPARATOR_TYPE) {
+            target.value += this.formatArray[position].separator
+          }
+          //редактирование
+        } else if (this.position < target.value.length) {
+          console.log(target.value.slice(0, this.position))
+          console.log(target.value.slice(this.position))
+          target.value = target.value.slice(0, this.position) + event.key + target.value.slice(this.position + 1)
         }
-        //редактирование
-      } else if (this.position < target.value.length) {
-        console.log(target.value.slice(0, this.position))
-        console.log(target.value.slice(this.position))
-        target.value = target.value.slice(0, this.position) + event.key + target.value.slice(this.position + 1)
+        this.doValidationOfFormatSection(target.value)
+        this.updateCaretPostion(target, this.position)
       }
-      this.updateCaretPostion(target, this.position)
+
     } else if (event.key == 'Backspace') {
       if (<number>target.selectionEnd == <number>target.selectionStart) {
-        if (this.format[this.position - 1] != SEPARATOR) {
+        if (this.position != 0 && this.formatArray[this.position - 1].type != SEPARATOR_TYPE) {
           target.value = target.value.slice(0, this.position - 1) + "0" + target.value.slice(this.position)
+          this.doValidationOfFormatSection(target.value)
+          target.setSelectionRange(this.position - 1, this.position - 1)
         }
       } else {
         target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
       }
-      target.setSelectionRange(this.position, this.position)
     } else if (event.key == 'Delete') {
       if (<number>target.selectionEnd == <number>target.selectionStart) {
-        if (this.format[this.position] != SEPARATOR) {
+        if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
           target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position + 1)
+          this.doValidationOfFormatSection(target.value)
+          target.setSelectionRange(this.position, this.position)
         }
       } else {
         target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
       }
-      target.setSelectionRange(this.position, this.position)
     }
 
     if (event.key == 'ArrowRight') {
-      if (target.value[this.position + 1] == SEPARATOR) {
-        target.setSelectionRange(this.position + 2, this.position + 2)
+      let nextPos = this.position + 1
+      if (this.formatArray[this.position].type == SEPARATOR_TYPE) {
+        target.setSelectionRange(this.position + this.formatArray[this.position].separatorLength, this.position + this.formatArray[this.position].separatorLength)
       } else {
-        target.setSelectionRange(this.position + 1, this.position + 1)
+        target.setSelectionRange(nextPos, nextPos)
       }
     }
     if (event.key == 'ArrowLeft') {
-      if (target.value[this.position - 1] == SEPARATOR) {
-        target.setSelectionRange(this.position - 2, this.position - 2)
+      let nextPos = this.position - 1
+      if (this.formatArray[nextPos].type == SEPARATOR_TYPE) {
+        target.setSelectionRange(this.position - this.formatArray[nextPos].separatorLength, this.position - this.formatArray[nextPos].separatorLength)
       } else {
-        target.setSelectionRange(this.position - 1, this.position - 1)
+        target.setSelectionRange(nextPos, this.position)
       }
     }
     this.value = target.value
-    if (this.doValidation()) {
-      this.updateInternalValue()
-      this.isValid = true
-    } else {
-      this.internalValue = null
-      this.isValid = false
-    }
+    if (!this.value.length) this.inValidFormats = []
+    // if (this.doValidation()) {
+    //   this.updateInternalValue()
+    //   this.isValid = true
+    // } else {
+    //   this.internalValue = null
+    //   this.isValid = false
+    // }
 
   }
   private updateCaretPostion(target: HTMLInputElement, position: number) {
-    if (target.value[position + 1] == SEPARATOR) {
-      target.setSelectionRange(position + 2, position + 2)
+    let nextPos = position + 1
+    if (this.formatArray[nextPos].type == SEPARATOR_TYPE) {
+      target.setSelectionRange(nextPos + this.formatArray[nextPos].separatorLength, nextPos + this.formatArray[nextPos].separatorLength)
     } else {
-      target.setSelectionRange(position + 1, position + 1)
+      target.setSelectionRange(nextPos, nextPos)
     }
   }
   updateInternalValue() {
@@ -150,8 +152,23 @@ export class AppDateEditorComponent {
     }
 
   }
-  doValidation() {
-    return this.regExp.test(this.value)
+  doValidationOfFormatSection(value: string) {
+    let positionFormat = this.formatArray[this.position]
+    let lastValue = value[positionFormat.endIndex]
+    if (positionFormat.type != SEPARATOR_TYPE && lastValue) {
+      let sectionValue = value.slice(positionFormat.startIndex, positionFormat.endIndex + 1)
+      let isValid = RegExp(positionFormat.formatRegExp as string).test(sectionValue)
+      if (!isValid) {
+        if (!this.inValidFormats.includes(positionFormat.type)) {
+          this.inValidFormats.push(positionFormat.type)
+        }
+      } else {
+        let i = this.inValidFormats.indexOf(positionFormat.type)
+        if (i != -1) {
+          this.inValidFormats.splice(i, 1)
+        }
+      }
+    }
   }
   onSelect(event: Event) {
     let target = event.target as HTMLInputElement
