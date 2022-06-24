@@ -1,14 +1,14 @@
 export const SEPARATOR = ":"
-export const FORMAT_dd = 'dd'
-export const FORMAT_MM = 'MM'
-export const FORMAT_yyyy = 'yyyy'
-export const FORMAT_hh = 'HH'
-export const FORMAT_mm = 'mm'
-export const FORMAT_ss = 'ss'
-export const FORMAT_SSS = 'SSS'
+export const FORMAT_dd: string = 'dd'
+export const FORMAT_MM: string = 'MM'
+export const FORMAT_yyyy: string = 'yyyy'
+export const FORMAT_hh: string = 'HH'
+export const FORMAT_mm: string = 'mm'
+export const FORMAT_ss: string = 'ss'
+export const FORMAT_SSS: string = 'SSS'
 export const SEPARATOR_TYPE = 'SEPARATOR_TYPE'
 
-export const formatArray = [FORMAT_dd, FORMAT_MM, FORMAT_yyyy, FORMAT_hh, FORMAT_mm, FORMAT_ss]
+export const formatArray = [FORMAT_dd, FORMAT_MM, FORMAT_yyyy, FORMAT_hh, FORMAT_mm, FORMAT_ss, FORMAT_SSS]
 
 export interface IFormatMap {
     [name: string]: IFormatData;

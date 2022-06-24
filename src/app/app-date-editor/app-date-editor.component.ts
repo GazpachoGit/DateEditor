@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { analizeFormat, FormatElement, formatMap, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
+import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_ss, FORMAT_SSS, FORMAT_yyyy, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -16,6 +16,7 @@ export class AppDateEditorComponent {
   internalValue: string | null = null
   position: number
   formatArray: Array<FormatElement>
+  initFormatedValues: { [name: string]: number }
   regExp: RegExp
   inValidFormats: string[] = []
   get invalidMessage() {
@@ -35,6 +36,7 @@ export class AppDateEditorComponent {
 
   ngOnInit() {
     this.formatArray = analizeFormat(this.format)
+    this.initFormatedValues = this.getInitialFormatedValues()
     this.regExp = this.getCurrentRegExp()
     this.value = this.getStringValue(this.dateValue)
   }
@@ -55,7 +57,7 @@ export class AppDateEditorComponent {
       if (this.inputMode == 'nano') {
         milisec = value.slice(0, -6)
       }
-      return this.datePipe.transform(milisec, this.format) as string;
+      return this.datePipe.transform(Number(milisec), this.format) as string;
     }
     return ""
   }
@@ -124,43 +126,67 @@ export class AppDateEditorComponent {
       }
     }
     this.value = target.value
+    this.updateInternalValue()
     if (!this.value.length) this.inValidFormats = []
-    // if (this.doValidation()) {
-    //   this.updateInternalValue()
-    //   this.isValid = true
-    // } else {
-    //   this.internalValue = null
-    //   this.isValid = false
-    // }
-
   }
   private updateCaretPostion(target: HTMLInputElement, position: number) {
     let nextPos = position + 1
-    if (this.formatArray[nextPos].type == SEPARATOR_TYPE) {
+    if (this.formatArray[nextPos] && this.formatArray[nextPos].type == SEPARATOR_TYPE) {
       target.setSelectionRange(nextPos + this.formatArray[nextPos].separatorLength, nextPos + this.formatArray[nextPos].separatorLength)
     } else {
       target.setSelectionRange(nextPos, nextPos)
     }
   }
-  updateInternalValue() {
-    let dp = this.value.split(SEPARATOR)
-    if (dp.length > 2) {
-      let date = new Date(+dp[2], +dp[1] - 1, +dp[0], +dp[3] || 0, +dp[4] || 0, +dp[5] || 0)
-      let numberDate = date.getTime()
-      if (this.inputMode == 'nano' && dp[6]) {
-        let stringDate = numberDate.toString().slice(0, -3)
-        stringDate += +dp[6]
-        this.internalValue = stringDate
-      } else {
-        this.internalValue = numberDate.toString()
-      }
+  private getInitialFormatedValues(): { [name: string]: number } {
+    let initDate: Date
+    if (this.inputMode == 'nano') {
+      initDate = new Date(Number(this.dateValue.slice(0, -6)))
     } else {
-      this.internalValue = null
+      initDate = new Date(Number(this.dateValue))
     }
+    //получить массив значений
 
+    let initFormatedValues: { [name: string]: number } = {
+      [FORMAT_yyyy]: initDate.getFullYear(),
+      [FORMAT_MM]: initDate.getMonth(),
+      [FORMAT_dd]: initDate.getDate(),
+      [FORMAT_hh]: initDate.getHours(),
+      [FORMAT_mm]: initDate.getMinutes(),
+      [FORMAT_ss]: initDate.getSeconds()
+    }
+    return initFormatedValues
+  }
+  updateInternalValue() {
+    //апдейт измененых значений
+    let currentFormatedDate = { ...this.initFormatedValues }
+    for (var pos of this.formatArray) {
+      if (pos.type != SEPARATOR_TYPE && pos.innerIndex == 0) {
+        currentFormatedDate[pos.type] = Number(this.value.slice(pos.startIndex, pos.endIndex + 1))
+        if (pos.type == FORMAT_MM) {
+          --currentFormatedDate[pos.type]
+        }
+      }
+    }
+    let newDate = new Date(currentFormatedDate[FORMAT_yyyy],
+      currentFormatedDate[FORMAT_MM],
+      currentFormatedDate[FORMAT_dd],
+      currentFormatedDate[FORMAT_hh],
+      currentFormatedDate[FORMAT_mm],
+      currentFormatedDate[FORMAT_ss],
+    ).valueOf()
+    //поправка на мили нано секунды
+    let sss_position = this.formatArray.find(f => f.type == FORMAT_SSS)
+    if (sss_position) {
+      let sss_value = Number(this.value.slice(sss_position.startIndex, sss_position.endIndex + 1))
+      newDate > 0 ? newDate += sss_value : newDate -= sss_value
+    }
+    let stringNewDate = newDate.toString()
+    if (this.inputMode == 'nano') stringNewDate += this.dateValue.slice(-6)
+    this.internalValue = stringNewDate
   }
   doValidationOfFormatSection(value: string) {
-    let positionFormat = this.formatArray[this.position]
+    let position = this.position == this.format.length ? this.position - 1 : this.position
+    let positionFormat = this.formatArray[position]
     let lastValue = value[positionFormat.endIndex]
     if (positionFormat.type != SEPARATOR_TYPE && lastValue) {
       let sectionValue = value.slice(positionFormat.startIndex, positionFormat.endIndex + 1)
