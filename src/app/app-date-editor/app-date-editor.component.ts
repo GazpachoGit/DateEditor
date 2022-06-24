@@ -175,12 +175,18 @@ export class AppDateEditorComponent {
       currentFormatedDate[FORMAT_ss],
     ).valueOf()
     //поправка на мили нано секунды
+    let sss_value: string = ''
     let sss_position = this.formatArray.find(f => f.type == FORMAT_SSS)
     if (sss_position) {
-      let sss_value = Number(this.value.slice(sss_position.startIndex, sss_position.endIndex + 1))
-      newDate > 0 ? newDate += sss_value : newDate -= sss_value
+      sss_value = this.value.slice(sss_position.startIndex, sss_position.endIndex + 1)
     }
-    let stringNewDate = newDate.toString()
+    let stringNewDate = newDate.toString().slice(0, -3)
+    if (sss_value.length > 0) {
+      stringNewDate += sss_value
+
+    } else {
+      stringNewDate += this.inputMode == 'nano' ? this.dateValue.slice(-9, -6) : this.dateValue.slice(-3)
+    }
     if (this.inputMode == 'nano') stringNewDate += this.dateValue.slice(-6)
     this.internalValue = stringNewDate
   }
