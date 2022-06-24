@@ -157,6 +157,10 @@ export class AppDateEditorComponent {
     return initFormatedValues
   }
   updateInternalValue() {
+    if (!this.doFullValidation(this.value)) {
+      this.internalValue = ""
+      return
+    }
     //апдейт измененых значений
     let currentFormatedDate = { ...this.initFormatedValues }
     for (var pos of this.formatArray) {
@@ -189,6 +193,9 @@ export class AppDateEditorComponent {
     }
     if (this.inputMode == 'nano') stringNewDate += this.dateValue.slice(-6)
     this.internalValue = stringNewDate
+  }
+  doFullValidation(value: string) {
+    return this.regExp.test(value)
   }
   doValidationOfFormatSection(value: string) {
     let position = this.position == this.format.length ? this.position - 1 : this.position
