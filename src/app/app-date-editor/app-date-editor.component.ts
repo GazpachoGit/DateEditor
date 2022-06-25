@@ -62,80 +62,83 @@ export class AppDateEditorComponent {
     return ""
   }
 
-  updateValue(event: KeyboardEvent) {
-    event.preventDefault()
+  updateValue(ev: Event) {
+    let event = ev as InputEvent
     let target = event.currentTarget as HTMLInputElement
     this.position = target.selectionStart as number
-    if (/^[0-9]$/i.test(event.key)) {
-      let formatPostion = this.formatArray[this.position]
-      if (formatPostion && formatPostion.localRegExp && formatPostion.localRegExp.test(event.key)) {
+    if (event.data && /^[0-9]$/i.test(event.data)) {
+      let formatPostion = this.formatArray[this.position - 1]
+      if (formatPostion && formatPostion.localRegExp && formatPostion.localRegExp.test(event.data)) {
         //ввод нового
         if (this.position == target.value.length) {
-          if (target.value.length == this.format.length) return
-          target.value += event.key
-          let position = this.position + 1
-          if (this.formatArray[position].type == SEPARATOR_TYPE) {
-            target.value += this.formatArray[position].separator
+          if (this.formatArray[this.position].type == SEPARATOR_TYPE) {
+            target.value += this.formatArray[this.position].separator
           }
           //редактирование
-        } else if (this.position < target.value.length) {
-          console.log(target.value.slice(0, this.position))
-          console.log(target.value.slice(this.position))
-          target.value = target.value.slice(0, this.position) + event.key + target.value.slice(this.position + 1)
+        } else if (this.position - 1 < target.value.length) {
+          target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
         }
-        this.doValidationOfFormatSection(target.value)
+        this.doValidationOfFormatSection(target.value, this.position - 1)
         this.updateCaretPostion(target, this.position)
-      }
-
-    } else if (event.key == 'Backspace') {
-      if (<number>target.selectionEnd == <number>target.selectionStart) {
-        if (this.position != 0 && this.formatArray[this.position - 1].type != SEPARATOR_TYPE) {
-          target.value = target.value.slice(0, this.position - 1) + "0" + target.value.slice(this.position)
-          this.doValidationOfFormatSection(target.value)
-          target.setSelectionRange(this.position - 1, this.position - 1)
-        }
       } else {
-        target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
+        target.value = this.value
+        target.setSelectionRange(this.position - 1, this.position - 1)
       }
-    } else if (event.key == 'Delete') {
+    } else if (event.inputType == 'deleteContentBackward') {
       if (<number>target.selectionEnd == <number>target.selectionStart) {
         if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
-          target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position + 1)
-          this.doValidationOfFormatSection(target.value)
-          target.setSelectionRange(this.position, this.position)
+          target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
+          this.doValidationOfFormatSection(target.value, this.position)
+        } else {
+          target.value = this.value
         }
+        //target.selectionStart = this.position
+        this.updateCaretPostion(target, this.position, true)
       } else {
         target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
       }
+    } else if (event.inputType == 'deleteContentForward') {
+      if (<number>target.selectionEnd == <number>target.selectionStart) {
+        if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
+          target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
+          this.doValidationOfFormatSection(target.value, this.position)
+        } else {
+          target.value = this.value
+        }
+        target.selectionStart = this.position
+      } else {
+        target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
+      }
+    } else {
+      target.value = this.value
+      target.setSelectionRange(this.position - 1, this.position - 1)
     }
 
-    if (event.key == 'ArrowRight') {
-      let nextPos = this.position + 1
-      if (this.formatArray[this.position].type == SEPARATOR_TYPE) {
-        target.setSelectionRange(this.position + this.formatArray[this.position].separatorLength, this.position + this.formatArray[this.position].separatorLength)
-      } else {
-        target.setSelectionRange(nextPos, nextPos)
-      }
-    }
-    if (event.key == 'ArrowLeft') {
-      let nextPos = this.position - 1
-      if (this.formatArray[nextPos].type == SEPARATOR_TYPE) {
-        target.setSelectionRange(this.position - this.formatArray[nextPos].separatorLength, this.position - this.formatArray[nextPos].separatorLength)
-      } else {
-        target.setSelectionRange(nextPos, this.position)
-      }
-    }
     this.value = target.value
     this.updateInternalValue()
     if (!this.value.length) this.inValidFormats = []
   }
-  private updateCaretPostion(target: HTMLInputElement, position: number) {
-    let nextPos = position + 1
-    if (this.formatArray[nextPos] && this.formatArray[nextPos].type == SEPARATOR_TYPE) {
-      target.setSelectionRange(nextPos + this.formatArray[nextPos].separatorLength, nextPos + this.formatArray[nextPos].separatorLength)
-    } else {
-      target.setSelectionRange(nextPos, nextPos)
+  onNavigation(event: KeyboardEvent) {
+    let target = event.currentTarget as HTMLInputElement
+    this.position = target.selectionStart as number
+    if (event.key == 'ArrowRight') {
+      let prevPos = this.position - 1
+      if (this.formatArray[prevPos].type == SEPARATOR_TYPE) {
+        target.setSelectionRange(prevPos + this.formatArray[prevPos].separatorLength, prevPos + this.formatArray[prevPos].separatorLength)
+      }
     }
+    if (event.key == 'ArrowLeft') {
+      let prevPos = this.position + 1
+      if (this.formatArray[this.position].type == SEPARATOR_TYPE) {
+        target.setSelectionRange(prevPos - this.formatArray[this.position].separatorLength, prevPos - this.formatArray[this.position].separatorLength)
+      }
+    }
+  }
+  private updateCaretPostion(target: HTMLInputElement, nextPos: number, left?: boolean) {
+    if (this.formatArray[nextPos] && this.formatArray[nextPos].type == SEPARATOR_TYPE) {
+      left ? nextPos -= this.formatArray[nextPos].separatorLength - 1 : nextPos += this.formatArray[nextPos].separatorLength
+    }
+    target.setSelectionRange(nextPos, nextPos)
   }
   private getInitialFormatedValues(): { [name: string]: number } {
     let initDate: Date
@@ -197,8 +200,8 @@ export class AppDateEditorComponent {
   doFullValidation(value: string) {
     return this.regExp.test(value)
   }
-  doValidationOfFormatSection(value: string) {
-    let position = this.position == this.format.length ? this.position - 1 : this.position
+  doValidationOfFormatSection(value: string, position: number) {
+    position = position == this.format.length ? position - 1 : position
     let positionFormat = this.formatArray[position]
     let lastValue = value[positionFormat.endIndex]
     if (positionFormat.type != SEPARATOR_TYPE && lastValue) {
@@ -221,5 +224,9 @@ export class AppDateEditorComponent {
     let start = target.selectionStart as number
     let end = target.selectionEnd as number
     if (end - start != target.value.length) target.setSelectionRange(target.selectionStart, target.selectionStart)
+  }
+  onInput(event: Event) {
+    event = event as InputEvent
+    console.log(event)
   }
 }
