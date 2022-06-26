@@ -166,7 +166,7 @@ export class AppDateEditorComponent {
   // date picker будет изменять this.value
   updateInternalValue() {
     if (!this.doFullValidation(this.value)) {
-      this.internalValue = ""
+      this.internalValue = null
       return
     }
     //апдейт измененых значений
@@ -215,5 +215,8 @@ export class AppDateEditorComponent {
       isValid = RegExp(positionFormat.formatRegExp as string).test(sectionValue)
     }
     return isValid
+  }
+  onPickerDateChange(event: string) {
+    this.value = this.getStringValue(event)
   }
 }

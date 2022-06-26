@@ -1,11 +1,11 @@
 <div class="calendar">
     <span>
-      <select name="month" [(ngModel)]="selectedMonth" (change)="getMonthLayout()">
+      <select name="month" [(ngModel)]="selectedMonth" (change)="onChange()">
         <option *ngFor="let month of monthes" [value]="month.value">{{month.title}}</option>
       </select>
     </span>
     <span>
-      <input type="number" [(ngModel)]="selectedYear" (blur)="getMonthLayout()"/>
+      <input type="number" [(ngModel)]="selectedYear" (blur)="onChange()"/>
     </span>
     <br>
     <span *ngFor='let weekDay of weekDaysName' class="day">
@@ -16,3 +16,4 @@
       {{ day?.date }}
     </span>
   </div>
+  <p>{{internalDate}}</p>

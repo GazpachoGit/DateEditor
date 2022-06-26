@@ -2,4 +2,4 @@
 <p>model value: {{value}}</p>
 <p>date value: {{internalValue}}</p>
 <p>{{invalidMessage}}</p>
-<app-date-picker [date]="internalValue" [mode]="inputMode"></app-date-picker>
+<app-date-picker [mode]="inputMode" [date]="internalValue" (onDateChange)="onPickerDateChange($event)"></app-date-picker>

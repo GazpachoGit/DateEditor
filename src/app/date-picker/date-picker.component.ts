@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 interface Day {
   date: number,
@@ -17,14 +17,52 @@ interface MonthOption {
   styleUrls: ['./date-picker.component.css']
 })
 export class DatePickerComponent {
-  @Input('date') inputDate: string | null
+  @Output() onDateChange = new EventEmitter<string>()
   @Input('mode') inputMode: string
+  @Input('date')
+  set inputDateString(value: string | null) {
+    let date: Date
+    if (value && Number(value)) {
+      if (this.inputMode == 'nano') {
+        date = new Date(Number(value.slice(0, -6)))
+      } else {
+        date = new Date(Number(value))
+      }
+    } else {
+      date = new Date()
+    }
+    this._inputDateString = value as string
+    this.inputDate = date
+    this.selectedDate = date.getDate()
+    this.selectedMonth = date.getMonth()
+    this.selectedYear = date.getFullYear()
+    this.getMonthLayout()
+  }
+  get inputDateString(): string {
+    return this._inputDateString
+  }
+
+  get internalDate() {
+    let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.inputDate.getHours(), this.inputDate.getMinutes(), this.inputDate.getSeconds())
+    let stringNewDate = newDate.valueOf().toString().slice(0, -3)
+
+    stringNewDate += this.inputMode == 'nano' ? this.inputDateString.slice(-9, -6) : this.inputDateString.slice(-3)
+
+    if (this.inputMode == 'nano') stringNewDate += this.inputDateString.slice(-6)
+    return stringNewDate
+  }
+
   weekDaysName = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
   monthes: Array<MonthOption> = [{ value: 0, title: 'Янв' }, { value: 1, title: 'Фев' }, { value: 2, title: 'Мар' }, { value: 3, title: 'Апр' }, { value: 4, title: 'Май' }, { value: 5, title: 'Июн' }, { value: 6, title: 'Июл' }, { value: 7, title: 'Авг' }]
+
+  _inputDateString: string
+  inputDate: Date
   monthDays: Array<Day | null>
   selectedDate: number
   selectedMonth: number
   selectedYear: number
+  _internalDate: string
+
 
   getMonthLayout() {
     let firstDay = new Date(this.selectedYear, this.selectedMonth, 1)
@@ -59,22 +97,10 @@ export class DatePickerComponent {
       let date = Number(dateString)
       this.selectedDate = date
     }
+    this.onDateChange.emit(this.internalDate)
   }
-
-  ngOnInit() {
-    let date: Date
-    if (this.inputDate && Number(this.inputDate)) {
-      if (this.inputMode == 'nano') {
-        date = new Date(Number(this.inputDate.slice(0, -6)))
-      } else {
-        date = new Date(Number(this.inputDate))
-      }
-    } else {
-      date = new Date()
-    }
-    this.selectedDate = date.getDate()
-    this.selectedMonth = date.getMonth()
-    this.selectedYear = date.getFullYear()
+  onChange() {
     this.getMonthLayout()
+    this.onDateChange.emit(this.internalDate)
   }
 }
