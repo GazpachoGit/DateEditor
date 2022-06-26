@@ -12,7 +12,7 @@
       {{ weekDay }}
     </span>
   
-    <span *ngFor='let day of monthDays' class="day">
+    <span *ngFor='let day of monthDays' class="day" [class.active]="selectedDate == day?.date" (click)="onDateClick($event)">
       {{ day?.date }}
     </span>
   </div>

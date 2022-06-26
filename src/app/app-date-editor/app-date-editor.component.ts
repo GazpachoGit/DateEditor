@@ -162,6 +162,8 @@ export class AppDateEditorComponent {
     }
     return initFormatedValues
   }
+  //Можно сделать геттер на internalValue
+  // date picker будет изменять this.value
   updateInternalValue() {
     if (!this.doFullValidation(this.value)) {
       this.internalValue = ""

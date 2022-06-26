@@ -22,7 +22,7 @@ export class DatePickerComponent {
   weekDaysName = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
   monthes: Array<MonthOption> = [{ value: 0, title: 'Янв' }, { value: 1, title: 'Фев' }, { value: 2, title: 'Мар' }, { value: 3, title: 'Апр' }, { value: 4, title: 'Май' }, { value: 5, title: 'Июн' }, { value: 6, title: 'Июл' }, { value: 7, title: 'Авг' }]
   monthDays: Array<Day | null>
-  selectedDate: string
+  selectedDate: number
   selectedMonth: number
   selectedYear: number
 
@@ -30,6 +30,7 @@ export class DatePickerComponent {
     let firstDay = new Date(this.selectedYear, this.selectedMonth, 1)
     let firstWeekDay = firstDay.getDay()
     let daysInMonth = new Date(this.selectedYear, Number(this.selectedMonth) + 1, 0).getDate();
+    if (this.selectedDate > daysInMonth) this.selectedDate = 1
     let monthDays = []
     for (let i = 1; i < firstWeekDay; i++) {
       monthDays.push(null)
@@ -51,6 +52,14 @@ export class DatePickerComponent {
     }
     this.monthDays = monthDays
   }
+  onDateClick(event: Event) {
+    let target = event.target as HTMLElement
+    let dateString = target.innerHTML
+    if (dateString.length > 0) {
+      let date = Number(dateString)
+      this.selectedDate = date
+    }
+  }
 
   ngOnInit() {
     let date: Date
@@ -63,6 +72,7 @@ export class DatePickerComponent {
     } else {
       date = new Date()
     }
+    this.selectedDate = date.getDate()
     this.selectedMonth = date.getMonth()
     this.selectedYear = date.getFullYear()
     this.getMonthLayout()
