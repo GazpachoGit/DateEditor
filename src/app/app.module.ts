@@ -6,6 +6,8 @@ import { AppDateEditorComponent } from './app-date-editor/app-date-editor.compon
 import { DatePipe } from '@angular/common';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 
+import { FormsModule } from '@angular/forms';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -13,7 +15,7 @@ import { DatePickerComponent } from './date-picker/date-picker.component';
     DatePickerComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule, FormsModule
   ],
   providers: [DatePipe],
   bootstrap: [AppComponent]

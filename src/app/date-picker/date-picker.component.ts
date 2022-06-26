@@ -6,6 +6,10 @@ interface Day {
   monthIndex: number,
   year: number
 }
+interface MonthOption {
+  value: number,
+  title: string
+}
 
 @Component({
   selector: 'app-date-picker',
@@ -13,15 +17,19 @@ interface Day {
   styleUrls: ['./date-picker.component.css']
 })
 export class DatePickerComponent {
-  @Input('date') inputDate: string
+  @Input('date') inputDate: string | null
+  @Input('mode') inputMode: string
   weekDaysName = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+  monthes: Array<MonthOption> = [{ value: 0, title: 'Янв' }, { value: 1, title: 'Фев' }, { value: 2, title: 'Мар' }, { value: 3, title: 'Апр' }, { value: 4, title: 'Май' }, { value: 5, title: 'Июн' }, { value: 6, title: 'Июл' }, { value: 7, title: 'Авг' }]
   monthDays: Array<Day | null>
   selectedDate: string
+  selectedMonth: number
+  selectedYear: number
 
-  getMonthLayout(currentMonth: number, currentYear: number): Array<Day | null> {
-    let firstDay = new Date(currentYear, currentMonth, 1)
+  getMonthLayout() {
+    let firstDay = new Date(this.selectedYear, this.selectedMonth, 1)
     let firstWeekDay = firstDay.getDay()
-    let daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    let daysInMonth = new Date(this.selectedYear, Number(this.selectedMonth) + 1, 0).getDate();
     let monthDays = []
     for (let i = 1; i < firstWeekDay; i++) {
       monthDays.push(null)
@@ -31,8 +39,8 @@ export class DatePickerComponent {
       monthDays.push({
         date: i,
         weekDay: weekDay,
-        monthIndex: currentMonth,
-        year: currentYear
+        monthIndex: this.selectedMonth,
+        year: this.selectedYear
       })
       weekDay = weekDay == 7 ? 1 : ++weekDay
     }
@@ -41,16 +49,22 @@ export class DatePickerComponent {
         monthDays.push(null)
       }
     }
-    return monthDays
+    this.monthDays = monthDays
   }
 
   ngOnInit() {
     let date: Date
     if (this.inputDate && Number(this.inputDate)) {
-      date = new Date(Number(this.inputDate))
+      if (this.inputMode == 'nano') {
+        date = new Date(Number(this.inputDate.slice(0, -6)))
+      } else {
+        date = new Date(Number(this.inputDate))
+      }
     } else {
       date = new Date()
     }
-    this.monthDays = this.getMonthLayout(date.getMonth(), date.getFullYear())
+    this.selectedMonth = date.getMonth()
+    this.selectedYear = date.getFullYear()
+    this.getMonthLayout()
   }
 }

@@ -1,4 +1,5 @@
-<input #textInput type="text" [value]="value"  (select)="onSelect($event)" (keyup)="onNavigation($event)" (input)="updateValue($event)"/>
+<input #textInput type="text" [value]="value" (keyup)="onNavigation($event)" (input)="updateValue($event)"/>
 <p>model value: {{value}}</p>
 <p>date value: {{internalValue}}</p>
 <p>{{invalidMessage}}</p>
+<app-date-picker [date]="internalValue" [mode]="inputMode"></app-date-picker>

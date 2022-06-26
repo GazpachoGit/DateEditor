@@ -68,37 +68,40 @@ export class AppDateEditorComponent {
     this.position = target.selectionStart as number
     if (event.data && /^[0-9]$/i.test(event.data)) {
       let formatPostion = this.formatArray[this.position - 1]
+      let updatedValue = target.value
       if (formatPostion && formatPostion.localRegExp && formatPostion.localRegExp.test(event.data)) {
         //ввод нового
         if (this.position == target.value.length) {
           if (this.formatArray[this.position].type == SEPARATOR_TYPE) {
-            target.value += this.formatArray[this.position].separator
+            updatedValue += this.formatArray[this.position].separator
           }
           //редактирование
         } else if (this.position - 1 < target.value.length) {
-          target.value = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+          updatedValue = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
         }
-        this.doValidationOfFormatSection(target.value, this.position - 1)
+
+      }
+      if (updatedValue.length > 0 && this.doValidationOfFormatSection(updatedValue, this.position - 1)) {
+        target.value = updatedValue
         this.updateCaretPostion(target, this.position)
       } else {
         target.value = this.value
         target.setSelectionRange(this.position - 1, this.position - 1)
       }
     } else if (event.inputType == 'deleteContentBackward') {
-      if (<number>target.selectionEnd == <number>target.selectionStart) {
+      if (this.value.length - target.value.length == 1) {
         if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
           target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
           this.doValidationOfFormatSection(target.value, this.position)
         } else {
           target.value = this.value
         }
-        //target.selectionStart = this.position
         this.updateCaretPostion(target, this.position, true)
-      } else {
-        target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
+      } else if (target.value.length != 0) {
+        target.value = this.value
       }
     } else if (event.inputType == 'deleteContentForward') {
-      if (<number>target.selectionEnd == <number>target.selectionStart) {
+      if (this.value.length - target.value.length == 1) {
         if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
           target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
           this.doValidationOfFormatSection(target.value, this.position)
@@ -106,8 +109,8 @@ export class AppDateEditorComponent {
           target.value = this.value
         }
         target.selectionStart = this.position
-      } else {
-        target.value = target.value.slice(0, <number>target.selectionStart) + target.value.slice(<number>target.selectionEnd)
+      } else if (target.value.length != 0) {
+        target.value = this.value
       }
     } else {
       target.value = this.value
@@ -200,33 +203,15 @@ export class AppDateEditorComponent {
   doFullValidation(value: string) {
     return this.regExp.test(value)
   }
-  doValidationOfFormatSection(value: string, position: number) {
+  doValidationOfFormatSection(value: string, position: number): boolean {
     position = position == this.format.length ? position - 1 : position
     let positionFormat = this.formatArray[position]
     let lastValue = value[positionFormat.endIndex]
+    let isValid = true
     if (positionFormat.type != SEPARATOR_TYPE && lastValue) {
       let sectionValue = value.slice(positionFormat.startIndex, positionFormat.endIndex + 1)
-      let isValid = RegExp(positionFormat.formatRegExp as string).test(sectionValue)
-      if (!isValid) {
-        if (!this.inValidFormats.includes(positionFormat.type)) {
-          this.inValidFormats.push(positionFormat.type)
-        }
-      } else {
-        let i = this.inValidFormats.indexOf(positionFormat.type)
-        if (i != -1) {
-          this.inValidFormats.splice(i, 1)
-        }
-      }
+      isValid = RegExp(positionFormat.formatRegExp as string).test(sectionValue)
     }
-  }
-  onSelect(event: Event) {
-    let target = event.target as HTMLInputElement
-    let start = target.selectionStart as number
-    let end = target.selectionEnd as number
-    if (end - start != target.value.length) target.setSelectionRange(target.selectionStart, target.selectionStart)
-  }
-  onInput(event: Event) {
-    event = event as InputEvent
-    console.log(event)
+    return isValid
   }
 }
