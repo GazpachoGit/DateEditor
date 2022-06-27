@@ -6,6 +6,7 @@
     <input *ngIf="format.includes('HH')" type="number" [(ngModel)]="selectedHour" (blur)="onChange()"/>
     <input *ngIf="format.includes('mm')" type="number" [(ngModel)]="selectedMinute" (blur)="onChange()"/>
     <input *ngIf="format.includes('ss')" type="number" [(ngModel)]="selectedSecond" (blur)="onChange()"/>
+    <input *ngIf="format.includes('SSS')" type="number" [(ngModel)]="selectedMiliSecond" (blur)="onChange()"/>
     <br>
 
     <span *ngFor='let weekDay of weekDaysName' class="day">
