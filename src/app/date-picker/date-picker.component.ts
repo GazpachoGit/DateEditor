@@ -19,6 +19,7 @@ interface MonthOption {
 export class DatePickerComponent {
   @Output() onDateChange = new EventEmitter<string>()
   @Input('mode') inputMode: string
+  @Input() format: string
   @Input('date')
   set inputDateString(value: string | null) {
     let date: Date
@@ -36,6 +37,9 @@ export class DatePickerComponent {
     this.selectedDate = date.getDate()
     this.selectedMonth = date.getMonth()
     this.selectedYear = date.getFullYear()
+    this.selectedHour = date.getHours()
+    this.selectedMinute = date.getMinutes()
+    this.selectedSecond = date.getSeconds()
     this.getMonthLayout()
   }
   get inputDateString(): string | null {
@@ -43,7 +47,7 @@ export class DatePickerComponent {
   }
 
   get internalDate() {
-    let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.inputDate.getHours(), this.inputDate.getMinutes(), this.inputDate.getSeconds())
+    let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.selectedHour, this.selectedMinute, this.selectedSecond)
     let stringNewDate = newDate.valueOf().toString().slice(0, -3)
     //milisec
     if (this.inputDateString != null) {
@@ -75,6 +79,9 @@ export class DatePickerComponent {
   selectedDate: number
   selectedMonth: number
   selectedYear: number
+  selectedHour: number
+  selectedMinute: number
+  selectedSecond: number
   _internalDate: string
 
 

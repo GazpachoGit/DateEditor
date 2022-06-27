@@ -1,13 +1,13 @@
 <div class="calendar">
-    <span>
-      <select name="month" [(ngModel)]="selectedMonth" (change)="onChange()">
-        <option *ngFor="let month of monthes" [value]="month.value">{{month.title}}</option>
-      </select>
-    </span>
-    <span>
-      <input type="number" [(ngModel)]="selectedYear" (blur)="onChange()"/>
-    </span>
+    <select name="month" [(ngModel)]="selectedMonth" (change)="onChange()">
+      <option *ngFor="let month of monthes" [value]="month.value">{{month.title}}</option>
+    </select>
+    <input type="number" [(ngModel)]="selectedYear" (blur)="onChange()"/>
+    <input *ngIf="format.includes('HH')" type="number" [(ngModel)]="selectedHour" (blur)="onChange()"/>
+    <input *ngIf="format.includes('mm')" type="number" [(ngModel)]="selectedMinute" (blur)="onChange()"/>
+    <input *ngIf="format.includes('ss')" type="number" [(ngModel)]="selectedSecond" (blur)="onChange()"/>
     <br>
+
     <span *ngFor='let weekDay of weekDaysName' class="day">
       {{ weekDay }}
     </span>
