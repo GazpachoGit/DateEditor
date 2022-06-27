@@ -38,24 +38,38 @@ export class DatePickerComponent {
     this.selectedYear = date.getFullYear()
     this.getMonthLayout()
   }
-  get inputDateString(): string {
+  get inputDateString(): string | null {
     return this._inputDateString
   }
 
   get internalDate() {
     let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.inputDate.getHours(), this.inputDate.getMinutes(), this.inputDate.getSeconds())
     let stringNewDate = newDate.valueOf().toString().slice(0, -3)
-
-    stringNewDate += this.inputMode == 'nano' ? this.inputDateString.slice(-9, -6) : this.inputDateString.slice(-3)
-
-    if (this.inputMode == 'nano') stringNewDate += this.inputDateString.slice(-6)
+    //milisec
+    if (this.inputDateString != null) {
+      if (this.inputMode == 'nano' && this.inputDateString.length > 6) {
+        stringNewDate += this.inputDateString.slice(-9, -6)
+      } else {
+        stringNewDate += this.inputDateString.slice(-3)
+      }
+    } else {
+      stringNewDate += "000"
+    }
+    //nanosec
+    if (this.inputMode == 'nano') {
+      if (this.inputDateString != null && this.inputDateString.length > 6) {
+        stringNewDate += this.inputDateString.slice(-6)
+      } else {
+        stringNewDate += "000000"
+      }
+    }
     return stringNewDate
   }
 
   weekDaysName = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
-  monthes: Array<MonthOption> = [{ value: 0, title: 'Янв' }, { value: 1, title: 'Фев' }, { value: 2, title: 'Мар' }, { value: 3, title: 'Апр' }, { value: 4, title: 'Май' }, { value: 5, title: 'Июн' }, { value: 6, title: 'Июл' }, { value: 7, title: 'Авг' }]
+  monthes: Array<MonthOption> = [{ value: 0, title: 'Янв' }, { value: 1, title: 'Фев' }, { value: 2, title: 'Мар' }, { value: 3, title: 'Апр' }, { value: 4, title: 'Май' }, { value: 5, title: 'Июн' }, { value: 6, title: 'Июл' }, { value: 7, title: 'Авг' }, { value: 8, title: 'Сен' }, { value: 9, title: 'Окт' }, { value: 10, title: 'Нояб' }, { value: 11, title: 'Дек' }]
 
-  _inputDateString: string
+  private _inputDateString: string
   inputDate: Date
   monthDays: Array<Day | null>
   selectedDate: number
