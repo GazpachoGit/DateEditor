@@ -7,12 +7,14 @@ import { DatePipe } from '@angular/common';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 
 import { FormsModule } from '@angular/forms';
+import { CycleNumberInputComponent } from './cycle-number-input/cycle-number-input.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AppDateEditorComponent,
-    DatePickerComponent
+    DatePickerComponent,
+    CycleNumberInputComponent
   ],
   imports: [
     BrowserModule, FormsModule

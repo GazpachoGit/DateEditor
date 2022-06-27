@@ -4,10 +4,10 @@
     </select>
     <input type="number" class="year-input" [(ngModel)]="selectedYear" (blur)="onChange()"/>
     <br>
-    <input *ngIf="format.includes('HH')" type="number" class="input" [(ngModel)]="selectedHour" (blur)="onChange()"/>
-    <input *ngIf="format.includes('mm')" type="number" class="input" [(ngModel)]="selectedMinute" (blur)="onChange()"/>
-    <input *ngIf="format.includes('ss')" type="number" class="input" [(ngModel)]="selectedSecond" (blur)="onChange()"/>
-    <input *ngIf="format.includes('SSS')" type="number" class="input" [(ngModel)]="selectedMiliSecond" (blur)="onChange()"/>
+    <app-cycle-number-input *ngIf="format.includes('HH')" [max]="23" [min]="0" [(value)]="selectedHour" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('mm')" [max]="59" [min]="0" [(value)]="selectedMinute" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('ss')" [max]="59" [min]="0" [(value)]="selectedSecond" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('SSS')" [max]="999" [min]="0" [(value)]="selectedMiliSecond" (blur)="onChange()"></app-cycle-number-input>
     <br>
 
     <span *ngFor='let weekDay of weekDaysName' class="day">

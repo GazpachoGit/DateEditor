@@ -97,9 +97,12 @@ export class AppDateEditorComponent {
           }
           //редактирование
         } else if (this.position - 1 < target.value.length) {
-          updatedValue = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+          if (this.formatArray[this.position - 1].type != SEPARATOR_TYPE) {
+            updatedValue = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+          }
         }
-
+      } else {
+        updatedValue = this.value
       }
       if (updatedValue.length > 0 && this.doValidationOfFormatSection(updatedValue, this.position - 1)) {
         target.value = updatedValue
@@ -128,7 +131,7 @@ export class AppDateEditorComponent {
         } else {
           target.value = this.value
         }
-        target.selectionStart = this.position
+        target.setSelectionRange(this.position, this.position)
       } else if (target.value.length != 0) {
         target.value = this.value
       }
