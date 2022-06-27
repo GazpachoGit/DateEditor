@@ -2,11 +2,12 @@
     <select name="month" [(ngModel)]="selectedMonth" (change)="onChange()">
       <option *ngFor="let month of monthes" [value]="month.value">{{month.title}}</option>
     </select>
-    <input type="number" [(ngModel)]="selectedYear" (blur)="onChange()"/>
-    <input *ngIf="format.includes('HH')" type="number" [(ngModel)]="selectedHour" (blur)="onChange()"/>
-    <input *ngIf="format.includes('mm')" type="number" [(ngModel)]="selectedMinute" (blur)="onChange()"/>
-    <input *ngIf="format.includes('ss')" type="number" [(ngModel)]="selectedSecond" (blur)="onChange()"/>
-    <input *ngIf="format.includes('SSS')" type="number" [(ngModel)]="selectedMiliSecond" (blur)="onChange()"/>
+    <input type="number" class="year-input" [(ngModel)]="selectedYear" (blur)="onChange()"/>
+    <br>
+    <input *ngIf="format.includes('HH')" type="number" class="input" [(ngModel)]="selectedHour" (blur)="onChange()"/>
+    <input *ngIf="format.includes('mm')" type="number" class="input" [(ngModel)]="selectedMinute" (blur)="onChange()"/>
+    <input *ngIf="format.includes('ss')" type="number" class="input" [(ngModel)]="selectedSecond" (blur)="onChange()"/>
+    <input *ngIf="format.includes('SSS')" type="number" class="input" [(ngModel)]="selectedMiliSecond" (blur)="onChange()"/>
     <br>
 
     <span *ngFor='let weekDay of weekDaysName' class="day">

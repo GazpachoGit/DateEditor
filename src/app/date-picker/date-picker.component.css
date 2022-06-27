@@ -1,11 +1,16 @@
 .calendar {
     width: 210px;
 }
-  
 .day {
     width: 30px;
     display: inline-block;
 }
 .active{
     background-color: gold;
+}
+.input{
+    width: 40px;
+}
+.year-input{
+    width: 50px;
 }

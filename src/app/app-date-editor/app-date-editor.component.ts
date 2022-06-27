@@ -39,21 +39,17 @@ export class AppDateEditorComponent {
       currentFormatedDate[FORMAT_hh],
       currentFormatedDate[FORMAT_mm],
       currentFormatedDate[FORMAT_ss],
+      currentFormatedDate[FORMAT_SSS]
     ).valueOf()
     //поправка на мили нано секунды
-    let sss_value: string = ''
-    let sss_position = this.formatArray.find(f => f.type == FORMAT_SSS)
-    if (sss_position) {
-      sss_value = this.value.slice(sss_position.startIndex, sss_position.endIndex + 1)
+    let stringNewDate = newDate.toString()
+    if (this.inputMode == 'nano') {
+      if (this.dateValue.length > 6) {
+        stringNewDate += this.dateValue.slice(-6)
+      } else {
+        stringNewDate += "000000"
+      }
     }
-    let stringNewDate = newDate.toString().slice(0, -3)
-    if (sss_value.length > 0) {
-      stringNewDate += sss_value
-
-    } else {
-      stringNewDate += this.inputMode == 'nano' ? this.dateValue.slice(-9, -6) : this.dateValue.slice(-3)
-    }
-    if (this.inputMode == 'nano') stringNewDate += this.dateValue.slice(-6)
     return stringNewDate
   }
 
@@ -180,7 +176,8 @@ export class AppDateEditorComponent {
       [FORMAT_dd]: initDate.getDate(),
       [FORMAT_hh]: initDate.getHours(),
       [FORMAT_mm]: initDate.getMinutes(),
-      [FORMAT_ss]: initDate.getSeconds()
+      [FORMAT_ss]: initDate.getSeconds(),
+      [FORMAT_SSS]: initDate.getMilliseconds()
     }
     return initFormatedValues
   }
