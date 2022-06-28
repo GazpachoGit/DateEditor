@@ -1,1 +1,1 @@
-<input type="number" [min]="minValue" [max]="maxValue" [(ngModel)]="value" (input)="onInput()" (blur)="onBlur()"/>
+<input type="number" [min]="minValue" [max]="maxValue" [(ngModel)]="value" (mousewheel)="onMouseWheel($event)" (input)="onInput()" (blur)="onBlur()"/>

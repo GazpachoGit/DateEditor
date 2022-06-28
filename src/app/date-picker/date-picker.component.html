@@ -7,7 +7,7 @@
     <app-cycle-number-input *ngIf="format.includes('HH')" [max]="23" [min]="0" [(value)]="selectedHour" (blur)="onChange()"></app-cycle-number-input>
     <app-cycle-number-input *ngIf="format.includes('mm')" [max]="59" [min]="0" [(value)]="selectedMinute" (blur)="onChange()"></app-cycle-number-input>
     <app-cycle-number-input *ngIf="format.includes('ss')" [max]="59" [min]="0" [(value)]="selectedSecond" (blur)="onChange()"></app-cycle-number-input>
-    <app-cycle-number-input *ngIf="format.includes('SSS')" [max]="999" [min]="0" [(value)]="selectedMiliSecond" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('S')" [max]="999" [min]="0" [(value)]="selectedMiliSecond" (blur)="onChange()"></app-cycle-number-input>
     <br>
 
     <span *ngFor='let weekDay of weekDaysName' class="day">

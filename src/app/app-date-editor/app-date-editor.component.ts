@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_ss, FORMAT_SSS, FORMAT_yyyy, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
+import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_S, FORMAT_SS, FORMAT_ss, FORMAT_SSS, FORMAT_yy, FORMAT_yyyy, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -18,7 +18,6 @@ export class AppDateEditorComponent {
   formatArray: Array<FormatElement>
   initFormatedValues: { [name: string]: number }
   regExp: RegExp
-  private _internalValue: string | null = null
   get internalValue(): string | null {
     if (!this.doFullValidation(this.value)) {
       return null
@@ -27,7 +26,21 @@ export class AppDateEditorComponent {
     let currentFormatedDate = { ...this.initFormatedValues }
     for (var pos of this.formatArray) {
       if (pos.type != SEPARATOR_TYPE && pos.innerIndex == 0) {
-        currentFormatedDate[pos.type] = Number(this.value.slice(pos.startIndex, pos.endIndex + 1))
+        if (pos.type == FORMAT_SSS || pos.type == FORMAT_SS || pos.type == FORMAT_S) {
+          let sss_value = this.value.slice(pos.startIndex, pos.endIndex + 1)
+          currentFormatedDate[FORMAT_SSS] = Number((sss_value + '000').match(/\d{3}/))
+        } else if (pos.type == FORMAT_yy) {
+          let yy_value = this.value.slice(pos.startIndex, pos.endIndex + 1).toString()
+          let init_yy_value = currentFormatedDate[FORMAT_yyyy].toString()
+          if (init_yy_value.length > 2) {
+            currentFormatedDate[FORMAT_yyyy] = Number(init_yy_value.slice(0, 2) + yy_value)
+          } else {
+            currentFormatedDate[FORMAT_yyyy] = Number(yy_value)
+          }
+        }
+        else {
+          currentFormatedDate[pos.type] = Number(this.value.slice(pos.startIndex, pos.endIndex + 1))
+        }
         if (pos.type == FORMAT_MM) {
           --currentFormatedDate[pos.type]
         }
@@ -201,5 +214,8 @@ export class AppDateEditorComponent {
   }
   onPickerDateChange(event: string) {
     this.value = this.getStringValue(event)
+    if (this.initFormatedValues[FORMAT_yyyy]) {
+      this.initFormatedValues[FORMAT_yyyy] = this.inputMode == 'nano' ? (new Date(Number(event.slice(0, -6)))).getFullYear() : (new Date(Number(event))).getFullYear()
+    }
   }
 }

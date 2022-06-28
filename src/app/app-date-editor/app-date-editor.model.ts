@@ -2,9 +2,12 @@ export const SEPARATOR = ":"
 export const FORMAT_dd: string = 'dd'
 export const FORMAT_MM: string = 'MM'
 export const FORMAT_yyyy: string = 'yyyy'
+export const FORMAT_yy: string = 'yy'
 export const FORMAT_hh: string = 'HH'
 export const FORMAT_mm: string = 'mm'
 export const FORMAT_ss: string = 'ss'
+export const FORMAT_S: string = 'S'
+export const FORMAT_SS: string = 'SS'
 export const FORMAT_SSS: string = 'SSS'
 export const SEPARATOR_TYPE = 'SEPARATOR_TYPE'
 
@@ -15,38 +18,61 @@ export interface IFormatMap {
 }
 export interface IFormatData {
     regExp: string,
-    regExps: string[]
+    regExps: string[],
+    formatRegExp: RegExp
 }
 
 export const formatMap: IFormatMap = {
     [FORMAT_dd]: {
         regExp: "(0[1-9]|[12][0-9]|3[01])",
-        regExps: ["([0-3])", "([0-9])"]
+        regExps: ["([0-3])", "([0-9])"],
+        formatRegExp: /dd/
     },
     [FORMAT_MM]: {
         regExp: "(0[1-9]|1[0-2])",
-        regExps: ["([0-1])", "\\d"]
+        regExps: ["([0-1])", "\\d"],
+        formatRegExp: /MM/
     },
     [FORMAT_yyyy]: {
         regExp: "(\\d{4})",
-        regExps: ["(\\d)", "(\\d)", "(\\d)", "(\\d)"]
+        regExps: ["(\\d)", "(\\d)", "(\\d)", "(\\d)"],
+        formatRegExp: /yyyy/
+    },
+    [FORMAT_yy]: {
+        regExp: "(\\d{2})",
+        regExps: ["(\\d)", "(\\d)"],
+        formatRegExp: /(?<!y)yy(?!y)/
     },
     [FORMAT_hh]: {
         regExp: "(([0-1][0-9])|(2[0-3]))",
-        regExps: ["([0-2])", "([0-9])"]
+        regExps: ["([0-2])", "([0-9])"],
+        formatRegExp: /HH/
     },
     [FORMAT_mm]: {
         regExp: "([0-5][0-9])",
-        regExps: ["([0-5])", "([0-9])"]
+        regExps: ["([0-5])", "([0-9])"],
+        formatRegExp: /mm/
     },
     [FORMAT_ss]: {
         regExp: "([0-5][0-9])",
-        regExps: ["([0-5])", "([0-9])"]
+        regExps: ["([0-5])", "([0-9])"],
+        formatRegExp: /ss/
+    },
+    [FORMAT_S]: {
+        regExp: "(\\d)",
+        regExps: ["(\\d)"],
+        formatRegExp: /(?<!S)S(?!S)/
+    },
+    [FORMAT_SS]: {
+        regExp: "(\\d{2})",
+        regExps: ["(\\d)", "(\\d)"],
+        formatRegExp: /(?<!S)SS(?!S)/
     },
     [FORMAT_SSS]: {
         regExp: "(\\d{3})",
-        regExps: ["(\\d)", "(\\d)", "(\\d)"]
-    }
+        regExps: ["(\\d)", "(\\d)", "(\\d)"],
+        formatRegExp: /(?<!S)SSS(?!S)/
+    },
 }
 export interface FormatElement {
     type: string,
@@ -61,15 +87,15 @@ export interface FormatElement {
 export function analizeFormat(format: string): Array<FormatElement> {
     //find all format types
     let temp: Array<FormatElement> = []
-    for (var formatType of formatArray) {
-        let startIndex = format.indexOf(formatType)
-        if (startIndex != -1) {
+    for (let [key, value] of Object.entries(formatMap)) {
+        let match = value.formatRegExp.exec(format)
+        if (match) {
             temp.push({
-                type: formatType,
+                type: key,
                 innerIndex: 0,
-                startIndex,
-                endIndex: startIndex + formatType.length - 1,
-                formatRegExp: formatMap[formatType].regExp,
+                startIndex: match.index,
+                endIndex: match.index + key.length - 1,
+                formatRegExp: value.regExp,
                 separator: '',
                 separatorLength: 0
             })
@@ -105,8 +131,6 @@ export function analizeFormat(format: string): Array<FormatElement> {
             })))
         }
     }
-    //let trimedFormat = format.slice(temp[0].startIndex, temp[temp.length - 1].endIndex + 1)
+    console.log(output)
     return output
-    //order by startIndex
-    //get sep between end and next start
 }

@@ -57,4 +57,5 @@ export class CycleNumberInputComponent {
   onBlur() {
     this.blur.emit()
   }
+  onMouseWheel(e: Event) { }
 }
