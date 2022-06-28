@@ -2,12 +2,12 @@
     <select name="month" [(ngModel)]="selectedMonth" (change)="onChange()">
       <option *ngFor="let month of monthes" [value]="month.value">{{month.title}}</option>
     </select>
-    <input type="number" class="year-input" [(ngModel)]="selectedYear" (blur)="onChange()"/>
+    <app-cycle-number-input *ngIf="format.includes('yy') "[maxLength]="4" [max]="2999" [min]="0" [(value)]="selectedYear" (blur)="onChange()"></app-cycle-number-input>
     <br>
-    <app-cycle-number-input *ngIf="format.includes('HH')" [max]="23" [min]="0" [(value)]="selectedHour" (blur)="onChange()"></app-cycle-number-input>
-    <app-cycle-number-input *ngIf="format.includes('mm')" [max]="59" [min]="0" [(value)]="selectedMinute" (blur)="onChange()"></app-cycle-number-input>
-    <app-cycle-number-input *ngIf="format.includes('ss')" [max]="59" [min]="0" [(value)]="selectedSecond" (blur)="onChange()"></app-cycle-number-input>
-    <app-cycle-number-input *ngIf="format.includes('S')" [max]="999" [min]="0" [(value)]="selectedMiliSecond" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('HH')" [maxLength]="2" [max]="23" [min]="0" [(value)]="selectedHour" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('mm')" [maxLength]="2" [max]="59" [min]="0" [(value)]="selectedMinute" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('ss')" [maxLength]="2" [max]="59" [min]="0" [(value)]="selectedSecond" (blur)="onChange()"></app-cycle-number-input>
+    <app-cycle-number-input *ngIf="format.includes('S')" [maxLength]="3" [max]="999" [min]="0" [(value)]="selectedMiliSecond" (blur)="onChange()"></app-cycle-number-input>
     <br>
 
     <span *ngFor='let weekDay of weekDaysName' class="day">

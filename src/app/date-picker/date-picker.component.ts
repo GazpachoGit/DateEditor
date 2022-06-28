@@ -50,6 +50,7 @@ export class DatePickerComponent {
   get internalDate() {
     let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.selectedHour, this.selectedMinute, this.selectedSecond, this.selectedMiliSecond)
     let stringNewDate = newDate.valueOf().toString()
+
     //nanosec
     if (this.inputMode == 'nano') {
       if (this.inputDateString != null && this.inputDateString.length > 6) {

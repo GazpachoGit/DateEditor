@@ -8,8 +8,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class CycleNumberInputComponent {
   private _maxValue: number
   private _minValue: number
-  private _maxLength: number
   private _value: number
+  @Input() maxLength: number
   @Input('max')
   set maxValue(value: number) {
     this._maxValue = Number(value) + 1
@@ -23,14 +23,6 @@ export class CycleNumberInputComponent {
   }
   get minValue() {
     return this._minValue
-  }
-  @Input()
-  set maxLength(value: number) {
-    if (value) this._maxLength = Number(value)
-    else this._maxLength = Infinity
-  }
-  get maxLength() {
-    return this._maxLength
   }
   @Output() valueChange = new EventEmitter();
   @Output() blur = new EventEmitter()
