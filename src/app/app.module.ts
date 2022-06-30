@@ -8,13 +8,15 @@ import { DatePickerComponent } from './date-picker/date-picker.component';
 
 import { FormsModule } from '@angular/forms';
 import { CycleNumberInputComponent } from './cycle-number-input/cycle-number-input.component';
+import { ClickOutsideDirective } from './date-picker/clickoutside.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
     AppDateEditorComponent,
     DatePickerComponent,
-    CycleNumberInputComponent
+    CycleNumberInputComponent,
+    ClickOutsideDirective
   ],
   imports: [
     BrowserModule, FormsModule

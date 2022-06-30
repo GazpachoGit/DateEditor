@@ -13,6 +13,10 @@ export const SEPARATOR_TYPE = 'SEPARATOR_TYPE'
 
 export const formatArray = [FORMAT_dd, FORMAT_MM, FORMAT_yyyy, FORMAT_hh, FORMAT_mm, FORMAT_ss, FORMAT_SSS]
 
+export interface IClickPos {
+    clickX: number,
+    clickY: number
+}
 export interface IFormatMap {
     [name: string]: IFormatData;
 }

@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_S, FORMAT_SS, FORMAT_ss, FORMAT_SSS, FORMAT_yy, FORMAT_yyyy, getCurrentRegExp, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
+import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_S, FORMAT_SS, FORMAT_ss, FORMAT_SSS, FORMAT_yy, FORMAT_yyyy, getCurrentRegExp, IClickPos, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -13,11 +13,7 @@ export class AppDateEditorComponent {
   @Input('value') dateValue: string
   @Input('mode') inputMode: string
 
-  datePickerStyle = {
-    position: 'fixed',
-    left: '',
-    top: ''
-  }
+  clickPosition: IClickPos
 
   value: string = ""
   position: number
@@ -271,20 +267,18 @@ export class AppDateEditorComponent {
     }
   }
   showDatePicker(event: MouseEvent) {
+    event.stopPropagation()
     if (!this.showPicker) {
-      let windowX = document.documentElement.clientWidth
-      let windowY = document.documentElement.clientHeight
-      let clickX = event.clientX
-      let clickY = event.clientY
-      let pickerX = 222
-      let pickerY = 238
-      let resultX = (clickX + pickerX > windowX) ? clickX - pickerX : clickX
-      let resultY = (clickY + pickerX > windowY) ? clickY - pickerY : clickY
-      this.datePickerStyle.left = `${resultX}px`
-      this.datePickerStyle.top = `${resultY}px`
+      this.clickPosition = {
+        clickX: event.clientX,
+        clickY: event.clientY
+      }
       this.showPicker = true
     } else {
       this.showPicker = false
     }
+  }
+  close() {
+    this.showPicker = false
   }
 }

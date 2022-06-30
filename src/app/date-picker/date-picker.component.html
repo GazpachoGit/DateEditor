@@ -1,5 +1,5 @@
 
-  <div class="calendar">
+  <div [ngStyle]="this.datePickerStyle" class="calendar">
       <select name="month" [(ngModel)]="selectedMonth" (change)="onChange()">
         <option *ngFor="let month of monthes" [value]="month.value">{{month.title}}</option>
       </select>

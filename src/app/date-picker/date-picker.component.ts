@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { IClickPos } from '../app-date-editor/app-date-editor.model';
 
 interface Day {
   date: number,
@@ -18,6 +19,19 @@ interface MonthOption {
 })
 export class DatePickerComponent {
   @Output() onDateChange = new EventEmitter<string>()
+
+  @Input() clickPosition: IClickPos
+  pickerX = 222
+  pickerY = 238
+  datePickerStyle = {
+    position: 'fixed',
+    width: `${this.pickerX}px`,
+    height: `${this.pickerY}px`,
+    top: '',
+    left: ''
+  }
+
+
   @Input('mode') inputMode: string
   @Input() format: string
   @Input('date')
@@ -77,6 +91,20 @@ export class DatePickerComponent {
   selectedMiliSecond: number
   _internalDate: string
 
+  constructor(private element: ElementRef) { }
+
+  ngOnInit() {
+    let windowX = document.documentElement.clientWidth
+    let windowY = document.documentElement.clientHeight
+    let clickX = this.clickPosition.clickX
+    let clickY = this.clickPosition.clickY
+    let pickerX = this.pickerX
+    let pickerY = this.pickerY
+    let resultX = (clickX + pickerX > windowX) ? clickX - pickerX : clickX
+    let resultY = (clickY + pickerX > windowY) ? clickY - pickerY : clickY
+    this.datePickerStyle.left = `${resultX}px`
+    this.datePickerStyle.top = `${resultY}px`
+  }
 
   getMonthLayout() {
     let firstDay = new Date(this.selectedYear, this.selectedMonth, 1)
@@ -116,8 +144,5 @@ export class DatePickerComponent {
   onChange() {
     this.getMonthLayout()
     this.onDateChange.emit(this.internalDate)
-  }
-  ngAfterViewInit() {
-    console.log('1')
   }
 }
