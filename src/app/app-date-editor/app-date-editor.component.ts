@@ -18,34 +18,14 @@ export class AppDateEditorComponent {
   formatArray: Array<FormatElement>
   initFormatedValues: { [name: string]: number }
   regExp: RegExp
+  showPicker = false
   get internalValue(): string | null {
     if (!this.doFullValidation(this.value)) {
       return null
     }
     //апдейт измененых значений
-    let currentFormatedDate = { ...this.initFormatedValues }
-    for (var pos of this.formatArray) {
-      if (pos.type != SEPARATOR_TYPE && pos.innerIndex == 0) {
-        if (pos.type == FORMAT_SSS || pos.type == FORMAT_SS || pos.type == FORMAT_S) {
-          let sss_value = this.value.slice(pos.startIndex, pos.endIndex + 1)
-          currentFormatedDate[FORMAT_SSS] = Number((sss_value + '000').match(/\d{3}/))
-        } else if (pos.type == FORMAT_yy) {
-          let yy_value = this.value.slice(pos.startIndex, pos.endIndex + 1).toString()
-          let init_yy_value = currentFormatedDate[FORMAT_yyyy].toString()
-          if (init_yy_value.length > 2) {
-            currentFormatedDate[FORMAT_yyyy] = Number(init_yy_value.slice(0, 2) + yy_value)
-          } else {
-            currentFormatedDate[FORMAT_yyyy] = Number(yy_value)
-          }
-        }
-        else {
-          currentFormatedDate[pos.type] = Number(this.value.slice(pos.startIndex, pos.endIndex + 1))
-        }
-        if (pos.type == FORMAT_MM) {
-          --currentFormatedDate[pos.type]
-        }
-      }
-    }
+    let currentFormatedDate = this.getCurrentFormatedDate(this.value)
+
     let newDate = new Date(currentFormatedDate[FORMAT_yyyy],
       currentFormatedDate[FORMAT_MM],
       currentFormatedDate[FORMAT_dd],
@@ -57,11 +37,7 @@ export class AppDateEditorComponent {
     //поправка на мили нано секунды
     let stringNewDate = newDate.toString()
     if (this.inputMode == 'nano') {
-      if (this.dateValue.length > 6) {
-        stringNewDate += this.dateValue.slice(-6)
-      } else {
-        stringNewDate += "000000"
-      }
+      stringNewDate += "000000"
     }
     return stringNewDate
   }
@@ -74,7 +50,36 @@ export class AppDateEditorComponent {
     this.regExp = this.getCurrentRegExp()
     this.value = this.getStringValue(this.dateValue)
   }
-
+  getCurrentFormatedDate(value: string) {
+    let currentFormatedDate = { ...this.initFormatedValues }
+    for (var pos of this.formatArray) {
+      if (pos.type != SEPARATOR_TYPE && pos.innerIndex == 0) {
+        if (pos.type == FORMAT_SSS || pos.type == FORMAT_SS || pos.type == FORMAT_S) {
+          let sss_value = value.slice(pos.startIndex, pos.endIndex + 1)
+          if (sss_value.length > 0) currentFormatedDate[FORMAT_SSS] = Number((sss_value + '000').match(/\d{3}/))
+        } else if (pos.type == FORMAT_yy) {
+          let yy_value = value.slice(pos.startIndex, pos.endIndex + 1)
+          if (yy_value.length > 0) {
+            let init_yy_value = currentFormatedDate[FORMAT_yyyy].toString()
+            if (init_yy_value.length > 2) {
+              currentFormatedDate[FORMAT_yyyy] = Number(init_yy_value.slice(0, 2) + yy_value)
+            } else {
+              currentFormatedDate[FORMAT_yyyy] = Number(yy_value)
+            }
+          }
+        }
+        else {
+          let newValue = value.slice(pos.startIndex, pos.endIndex + 1)
+          if (newValue.length)
+            currentFormatedDate[pos.type] = Number(newValue)
+        }
+        if (pos.type == FORMAT_MM) {
+          --currentFormatedDate[pos.type]
+        }
+      }
+    }
+    return currentFormatedDate
+  }
   getCurrentRegExp(): RegExp {
     let output: string = ""
     this.formatArray.forEach(f => {
@@ -102,23 +107,37 @@ export class AppDateEditorComponent {
     if (event.data && /^[0-9]$/i.test(event.data)) {
       let formatPostion = this.formatArray[this.position - 1]
       let updatedValue = target.value
-      if (formatPostion && formatPostion.localRegExp && formatPostion.localRegExp.test(event.data)) {
-        //ввод нового
-        if (this.position == target.value.length) {
-          if (this.formatArray[this.position] && this.formatArray[this.position].type == SEPARATOR_TYPE) {
-            updatedValue += this.formatArray[this.position].separator
+      if (formatPostion && formatPostion.localRegExp) {
+        //валидный ввод
+        if (formatPostion.localRegExp.test(event.data)) {
+          //ввод нового
+          if (this.position == target.value.length) {
+            if (this.formatArray[this.position] && this.formatArray[this.position].type == SEPARATOR_TYPE) {
+              updatedValue += this.formatArray[this.position].separator
+            }
+            //редактирование
+          } else if (this.position - 1 < target.value.length) {
+            if (this.formatArray[this.position - 1].type != SEPARATOR_TYPE) {
+              updatedValue = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+            }
           }
-          //редактирование
-        } else if (this.position - 1 < target.value.length) {
-          if (this.formatArray[this.position - 1].type != SEPARATOR_TYPE) {
-            updatedValue = target.value.slice(0, this.position) + target.value.slice(this.position + 1)
+        } else {
+          let sectionValue = this.value.slice(formatPostion.startIndex, formatPostion.endIndex + 1)
+          if (formatPostion.innerIndex == 0 && sectionValue == '00') {
+            let temp = [...this.value]
+            temp[this.position] = event.data
+            updatedValue = temp.join('')
+            ++this.position
+          } else {
+            updatedValue = this.value
           }
         }
+        //разделитель или конец строки
       } else {
         updatedValue = this.value
       }
       if (updatedValue.length > 0 && this.doValidationOfFormatSection(updatedValue, this.position - 1)) {
-        target.value = updatedValue
+        target.value = this.convertToExistingDate(updatedValue, this.position - 1)
         this.updateCaretPostion(target, this.position)
       } else {
         target.value = this.value
@@ -179,10 +198,14 @@ export class AppDateEditorComponent {
   }
   private getInitialFormatedValues(): { [name: string]: number } {
     let initDate: Date
-    if (this.inputMode == 'nano') {
-      initDate = new Date(Number(this.dateValue.slice(0, -6)))
+    if (!this.dateValue) {
+      initDate = new Date()
     } else {
-      initDate = new Date(Number(this.dateValue))
+      if (this.inputMode == 'nano') {
+        initDate = new Date(Number(this.dateValue.slice(0, -6)))
+      } else {
+        initDate = new Date(Number(this.dateValue))
+      }
     }
     //получить массив значений
 
@@ -211,6 +234,37 @@ export class AppDateEditorComponent {
       isValid = RegExp(positionFormat.formatRegExp as string).test(sectionValue)
     }
     return isValid
+  }
+  convertToExistingDate(value: string, postion: number) {
+    let type = this.formatArray[postion].type
+    if (type == FORMAT_dd || type == FORMAT_MM || type == FORMAT_yy || type == FORMAT_yyyy) {
+      if (!value[this.formatArray[postion].endIndex]) return value
+      let currentFormatedDate = this.getCurrentFormatedDate(value)
+      let maxMonthDay = new Date(currentFormatedDate[FORMAT_yyyy], currentFormatedDate[FORMAT_MM] + 1, 0).getDate();
+      if (currentFormatedDate[FORMAT_dd] > maxMonthDay) currentFormatedDate[FORMAT_dd] = maxMonthDay
+      let newDate = new Date(currentFormatedDate[FORMAT_yyyy],
+        currentFormatedDate[FORMAT_MM],
+        currentFormatedDate[FORMAT_dd],
+        currentFormatedDate[FORMAT_hh],
+        currentFormatedDate[FORMAT_mm],
+        currentFormatedDate[FORMAT_ss],
+        currentFormatedDate[FORMAT_SSS]
+      ).valueOf()
+      let currentFormat = this.format.slice(0, value.length)
+      return this.datePipe.transform(newDate, currentFormat) as string
+    }
+    return value
+
+  }
+  getSectionValue(value: string, sectionFormat: string) {
+    let format = this.formatArray.find(f => f.type == sectionFormat)
+    if (format) {
+      let output = value.slice(format.startIndex, format.endIndex + 1)
+      if (output.length) {
+        return sectionFormat == FORMAT_yy ? Number(20 + output) : Number(output)
+      }
+    }
+    return null
   }
   onPickerDateChange(event: string) {
     this.value = this.getStringValue(event)
