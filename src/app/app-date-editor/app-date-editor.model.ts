@@ -134,3 +134,12 @@ export function analizeFormat(format: string): Array<FormatElement> {
     console.log(output)
     return output
 }
+export function getCurrentRegExp(formatArray: Array<FormatElement>): RegExp {
+    let output: string = ""
+    formatArray.forEach(f => {
+        if (f.type != SEPARATOR_TYPE && f.innerIndex == 0) {
+            output += `${f.formatRegExp}${f.separator}`
+        }
+    })
+    return new RegExp(output)
+}

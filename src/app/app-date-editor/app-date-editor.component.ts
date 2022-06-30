@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_S, FORMAT_SS, FORMAT_ss, FORMAT_SSS, FORMAT_yy, FORMAT_yyyy, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
+import { analizeFormat, FormatElement, formatMap, FORMAT_dd, FORMAT_hh, FORMAT_mm, FORMAT_MM, FORMAT_S, FORMAT_SS, FORMAT_ss, FORMAT_SSS, FORMAT_yy, FORMAT_yyyy, getCurrentRegExp, IFormatMap, SEPARATOR, SEPARATOR_TYPE } from './app-date-editor.model';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -47,7 +47,7 @@ export class AppDateEditorComponent {
   ngOnInit() {
     this.formatArray = analizeFormat(this.format)
     this.initFormatedValues = this.getInitialFormatedValues()
-    this.regExp = this.getCurrentRegExp()
+    this.regExp = getCurrentRegExp(this.formatArray)
     this.value = this.getStringValue(this.dateValue)
   }
   getCurrentFormatedDate(value: string) {
@@ -80,15 +80,7 @@ export class AppDateEditorComponent {
     }
     return currentFormatedDate
   }
-  getCurrentRegExp(): RegExp {
-    let output: string = ""
-    this.formatArray.forEach(f => {
-      if (f.type != SEPARATOR_TYPE && f.innerIndex == 0) {
-        output += `${f.formatRegExp}${f.separator}`
-      }
-    })
-    return new RegExp(output)
-  }
+
   getStringValue(value: string): string {
     if (value) {
       let milisec = value
