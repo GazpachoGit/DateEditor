@@ -12,8 +12,14 @@ export class AppDateEditorComponent {
   @Input('format') format: string
   @Input('value') dateValue: string
   @Input('mode') inputMode: string
-  value: string = ""
 
+  datePickerStyle = {
+    position: 'fixed',
+    left: '',
+    top: ''
+  }
+
+  value: string = ""
   position: number
   formatArray: Array<FormatElement>
   initFormatedValues: { [name: string]: number }
@@ -262,6 +268,23 @@ export class AppDateEditorComponent {
     this.value = this.getStringValue(event)
     if (this.initFormatedValues[FORMAT_yyyy]) {
       this.initFormatedValues[FORMAT_yyyy] = this.inputMode == 'nano' ? (new Date(Number(event.slice(0, -6)))).getFullYear() : (new Date(Number(event))).getFullYear()
+    }
+  }
+  showDatePicker(event: MouseEvent) {
+    if (!this.showPicker) {
+      let windowX = document.documentElement.clientWidth
+      let windowY = document.documentElement.clientHeight
+      let clickX = event.clientX
+      let clickY = event.clientY
+      let pickerX = 222
+      let pickerY = 238
+      let resultX = (clickX + pickerX > windowX) ? clickX - pickerX : clickX
+      let resultY = (clickY + pickerX > windowY) ? clickY - pickerY : clickY
+      this.datePickerStyle.left = `${resultX}px`
+      this.datePickerStyle.top = `${resultY}px`
+      this.showPicker = true
+    } else {
+      this.showPicker = false
     }
   }
 }

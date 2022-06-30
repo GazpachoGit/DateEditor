@@ -117,4 +117,7 @@ export class DatePickerComponent {
     this.getMonthLayout()
     this.onDateChange.emit(this.internalDate)
   }
+  ngAfterViewInit() {
+    console.log('1')
+  }
 }

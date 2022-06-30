@@ -1,5 +1,8 @@
 .calendar {
     width: 210px;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid black;
 }
 .day {
     width: 30px;
