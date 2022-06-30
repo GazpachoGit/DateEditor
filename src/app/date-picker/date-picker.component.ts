@@ -61,20 +61,7 @@ export class DatePickerComponent {
     return this._inputDateString
   }
 
-  get internalDate() {
-    let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.selectedHour, this.selectedMinute, this.selectedSecond, this.selectedMiliSecond)
-    let stringNewDate = newDate.valueOf().toString()
-
-    //nanosec
-    if (this.inputMode == 'nano') {
-      if (this.inputDateString != null && this.inputDateString.length > 6) {
-        stringNewDate += this.inputDateString.slice(-6)
-      } else {
-        stringNewDate += "000000"
-      }
-    }
-    return stringNewDate
-  }
+  internalDate: string
 
   weekDaysName = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
   monthes: Array<MonthOption> = [{ value: 0, title: 'Янв' }, { value: 1, title: 'Фев' }, { value: 2, title: 'Мар' }, { value: 3, title: 'Апр' }, { value: 4, title: 'Май' }, { value: 5, title: 'Июн' }, { value: 6, title: 'Июл' }, { value: 7, title: 'Авг' }, { value: 8, title: 'Сен' }, { value: 9, title: 'Окт' }, { value: 10, title: 'Нояб' }, { value: 11, title: 'Дек' }]
@@ -91,9 +78,13 @@ export class DatePickerComponent {
   selectedMiliSecond: number
   _internalDate: string
 
-  constructor(private element: ElementRef) { }
+  constructor() { }
 
   ngOnInit() {
+    this.getComponentPosition()
+    this.internalDate = this.getInternalDate()
+  }
+  getComponentPosition() {
     let windowX = document.documentElement.clientWidth
     let windowY = document.documentElement.clientHeight
     let clickX = this.clickPosition.clickX
@@ -104,6 +95,20 @@ export class DatePickerComponent {
     let resultY = (clickY + pickerX > windowY) ? clickY - pickerY : clickY
     this.datePickerStyle.left = `${resultX}px`
     this.datePickerStyle.top = `${resultY}px`
+  }
+  getInternalDate() {
+    let newDate = new Date(this.selectedYear, this.selectedMonth, this.selectedDate, this.selectedHour, this.selectedMinute, this.selectedSecond, this.selectedMiliSecond)
+    let stringNewDate = newDate.valueOf().toString()
+
+    //nanosec
+    if (this.inputMode == 'nano') {
+      if (this.inputDateString != null && this.inputDateString.length > 6) {
+        stringNewDate += this.inputDateString.slice(-6)
+      } else {
+        stringNewDate += "000000"
+      }
+    }
+    return stringNewDate
   }
 
   getMonthLayout() {
@@ -139,10 +144,12 @@ export class DatePickerComponent {
       let date = Number(dateString)
       this.selectedDate = date
     }
+    this.internalDate = this.getInternalDate()
     this.onDateChange.emit(this.internalDate)
   }
   onChange() {
     this.getMonthLayout()
+    this.internalDate = this.getInternalDate()
     this.onDateChange.emit(this.internalDate)
   }
 }

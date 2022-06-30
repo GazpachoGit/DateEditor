@@ -21,7 +21,30 @@ export class AppDateEditorComponent {
   initFormatedValues: { [name: string]: number }
   regExp: RegExp
   showPicker = false
-  get internalValue(): string | null {
+  internalValue: string | null
+  // get internalValue(): string | null {
+  //   if (!this.doFullValidation(this.value)) {
+  //     return null
+  //   }
+  //   //апдейт измененых значений
+  //   let currentFormatedDate = this.getCurrentFormatedDate(this.value)
+
+  //   let newDate = new Date(currentFormatedDate[FORMAT_yyyy],
+  //     currentFormatedDate[FORMAT_MM],
+  //     currentFormatedDate[FORMAT_dd],
+  //     currentFormatedDate[FORMAT_hh],
+  //     currentFormatedDate[FORMAT_mm],
+  //     currentFormatedDate[FORMAT_ss],
+  //     currentFormatedDate[FORMAT_SSS]
+  //   ).valueOf()
+  //   //поправка на мили нано секунды
+  //   let stringNewDate = newDate.toString()
+  //   if (this.inputMode == 'nano') {
+  //     stringNewDate += "000000"
+  //   }
+  //   return stringNewDate
+  // }
+  getInternalValue() {
     if (!this.doFullValidation(this.value)) {
       return null
     }
@@ -51,6 +74,7 @@ export class AppDateEditorComponent {
     this.initFormatedValues = this.getInitialFormatedValues()
     this.regExp = getCurrentRegExp(this.formatArray)
     this.value = this.getStringValue(this.dateValue)
+    this.internalValue = this.getInternalValue()
   }
   getCurrentFormatedDate(value: string) {
     let currentFormatedDate = { ...this.initFormatedValues }
@@ -135,13 +159,13 @@ export class AppDateEditorComponent {
         this.updateCaretPostion(target, this.position)
       } else {
         target.value = this.value
-        target.setSelectionRange(this.position - 1, this.position - 1)
+        if (event.data != '0') target.setSelectionRange(this.position - 1, this.position - 1)
+        else target.setSelectionRange(this.position, this.position)
       }
     } else if (event.inputType == 'deleteContentBackward') {
       if (this.value.length - target.value.length == 1) {
         if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
           target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
-          this.doValidationOfFormatSection(target.value, this.position)
         } else {
           target.value = this.value
         }
@@ -153,7 +177,6 @@ export class AppDateEditorComponent {
       if (this.value.length - target.value.length == 1) {
         if (this.formatArray[this.position].type != SEPARATOR_TYPE) {
           target.value = target.value.slice(0, this.position) + "0" + target.value.slice(this.position)
-          this.doValidationOfFormatSection(target.value, this.position)
         } else {
           target.value = this.value
         }
@@ -166,7 +189,10 @@ export class AppDateEditorComponent {
       target.setSelectionRange(this.position - 1, this.position - 1)
     }
 
-    this.value = target.value
+    if (target.value != this.value) {
+      this.value = target.value
+      this.internalValue = this.getInternalValue()
+    }
   }
   onNavigation(event: KeyboardEvent) {
     let target = event.currentTarget as HTMLInputElement
@@ -265,6 +291,7 @@ export class AppDateEditorComponent {
     if (this.initFormatedValues[FORMAT_yyyy]) {
       this.initFormatedValues[FORMAT_yyyy] = this.inputMode == 'nano' ? (new Date(Number(event.slice(0, -6)))).getFullYear() : (new Date(Number(event))).getFullYear()
     }
+    this.internalValue = this.getInternalValue()
   }
   showDatePicker(event: MouseEvent) {
     event.stopPropagation()
