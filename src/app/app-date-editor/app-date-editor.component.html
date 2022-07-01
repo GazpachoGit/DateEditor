@@ -1,4 +1,4 @@
 <button (click)="showDatePicker($event)">Edit</button><input #textInput type="text" [value]="value" (keyup)="onNavigation($event)" (input)="updateValue($event)"/>
 <p>model value: {{value}}</p>
 <p>date value: {{internalValue}}</p>
-<app-date-picker *ngIf="showPicker"  [clickPosition]="clickPosition" [mode]="inputMode" [format]="format" [date]="internalValue" (onDateChange)="onPickerDateChange($event)"></app-date-picker>
+<app-date-picker *ngIf="showPicker" (clickOutside)="close()" [clickPosition]="clickPosition" [mode]="inputMode" [format]="format" [date]="internalValue" (onDateChange)="onPickerDateChange($event)"></app-date-picker>
