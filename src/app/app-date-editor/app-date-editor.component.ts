@@ -309,6 +309,20 @@ export class AppDateEditorComponent {
       this.showPicker = false
     }
   }
+  onCopy(event: ClipboardEvent) {
+    if (this.internalValue != null) {
+      event.preventDefault()
+      event.clipboardData?.clearData()
+      event.clipboardData?.setData('text', this.internalValue as string)
+    }
+  }
+  onPaste(event: ClipboardEvent) {
+    event.preventDefault()
+    let date = event.clipboardData?.getData("text")
+    if (date && isFinite(+date)) {
+      this.onPickerDateChange(date)
+    }
+  }
   close() {
     this.showPicker = false
   }
