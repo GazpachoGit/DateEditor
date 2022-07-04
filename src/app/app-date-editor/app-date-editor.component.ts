@@ -198,15 +198,19 @@ export class AppDateEditorComponent {
     let target = event.currentTarget as HTMLInputElement
     this.position = target.selectionStart as number
     if (event.key == 'ArrowRight') {
-      let prevPos = this.position - 1
+      let prevPos = this.position - 1 > 0 ? this.position - 1 : 0
       if (this.formatArray[prevPos].type == SEPARATOR_TYPE) {
-        target.setSelectionRange(prevPos + this.formatArray[prevPos].separatorLength, prevPos + this.formatArray[prevPos].separatorLength)
+        if (target.selectionStart == target.selectionEnd) {
+          target.setSelectionRange(prevPos + this.formatArray[prevPos].separatorLength, prevPos + this.formatArray[prevPos].separatorLength)
+        }
       }
     }
     if (event.key == 'ArrowLeft') {
       let prevPos = this.position + 1
-      if (this.formatArray[this.position].type == SEPARATOR_TYPE) {
-        target.setSelectionRange(prevPos - this.formatArray[this.position].separatorLength, prevPos - this.formatArray[this.position].separatorLength)
+      if (this.formatArray[this.position] && this.formatArray[this.position].type == SEPARATOR_TYPE) {
+        if (target.selectionStart == target.selectionEnd) {
+          target.setSelectionRange(prevPos - this.formatArray[this.position].separatorLength, prevPos - this.formatArray[this.position].separatorLength)
+        }
       }
     }
   }
