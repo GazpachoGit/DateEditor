@@ -22,28 +22,6 @@ export class AppDateEditorComponent {
   regExp: RegExp
   showPicker = false
   internalValue: string | null
-  // get internalValue(): string | null {
-  //   if (!this.doFullValidation(this.value)) {
-  //     return null
-  //   }
-  //   //апдейт измененых значений
-  //   let currentFormatedDate = this.getCurrentFormatedDate(this.value)
-
-  //   let newDate = new Date(currentFormatedDate[FORMAT_yyyy],
-  //     currentFormatedDate[FORMAT_MM],
-  //     currentFormatedDate[FORMAT_dd],
-  //     currentFormatedDate[FORMAT_hh],
-  //     currentFormatedDate[FORMAT_mm],
-  //     currentFormatedDate[FORMAT_ss],
-  //     currentFormatedDate[FORMAT_SSS]
-  //   ).valueOf()
-  //   //поправка на мили нано секунды
-  //   let stringNewDate = newDate.toString()
-  //   if (this.inputMode == 'nano') {
-  //     stringNewDate += "000000"
-  //   }
-  //   return stringNewDate
-  // }
   getInternalValue() {
     if (!this.doFullValidation(this.value)) {
       return null

@@ -135,7 +135,6 @@ export function analizeFormat(format: string): Array<FormatElement> {
             })))
         }
     }
-    console.log(output)
     return output
 }
 export function getCurrentRegExp(formatArray: Array<FormatElement>): RegExp {
