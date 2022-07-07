@@ -1,3 +1,5 @@
+//ng test --include=**/app-date-editor.component.spec.ts
+
 import { DatePipe } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -94,7 +96,7 @@ describe('AppDateEditorComponent', () => {
     el.dispatchEvent(new InputEvent('input', { data: '1' }));
     expect(component.value).toEqual('22!@#06/22 ')
   })
-  it('INPUT 0-9 postion is changed on ziro input on the first section postion', () => {
+  it('INPUT 0-9 postion is changed on zero input on the first section postion', () => {
     component.value = '00!@#00/00 '
     let input = fixture.debugElement.query(By.css('input'));
     let el = input.nativeElement;
@@ -104,14 +106,6 @@ describe('AppDateEditorComponent', () => {
     expect(component.value).toEqual('00!@#00/00 ')
     expect(el.selectionStart).toEqual(6)
   })
-  it('NAVIGATION LEFT shift through a sepparator', () => {
-    let input = fixture.debugElement.query(By.css('input'));
-    let el = input.nativeElement;
-    el.value = '11!@#'
-    el.setSelectionRange(4, 4)
-    el.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
-    expect(el.selectionStart).toEqual(2)
-  })
   it('NAVIGATION LEFT shit on 1 postion on a date', () => {
     let input = fixture.debugElement.query(By.css('input'));
     let el = input.nativeElement;
@@ -120,5 +114,68 @@ describe('AppDateEditorComponent', () => {
     el.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
     expect(el.selectionStart).toEqual(1)
   })
-
+  it('NAVIGATION LEFT shift through a sepparator', () => {
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = '11!@#'
+    el.setSelectionRange(4, 4)
+    el.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft' }));
+    expect(el.selectionStart).toEqual(2)
+  })
+  it('NAVIGATION RIGHT shit on 1 postion on a date', () => {
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = '11!@#'
+    el.setSelectionRange(2, 2)
+    el.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }));
+    expect(el.selectionStart).toEqual(2)
+  })
+  it('NAVIGATION RIGHT shift through a sepparator', () => {
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = '11!@#'
+    el.setSelectionRange(3, 3)
+    el.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight' }));
+    expect(el.selectionStart).toEqual(5)
+  })
+  it('BACKSPACE zero insted of date value', () => {
+    component.value = '22!@#02/22 '
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = '2!@#02/22 '
+    el.setSelectionRange(1, 1)
+    el.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    expect(component.value).toEqual('20!@#02/22 ')
+    expect(el.selectionStart).toEqual(1)
+  })
+  it('BACKSPACE no changes and shift on separator', () => {
+    component.value = '22!@#02/22 '
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = '22!@02/22 '
+    el.setSelectionRange(4, 4)
+    el.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    expect(component.value).toEqual('22!@#02/22 ')
+    expect(el.selectionStart).toEqual(2)
+  })
+  it('BACKSPACE ignore range selection smoller than value length', () => {
+    component.value = '22!@#02/22 '
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = '22!@'
+    el.setSelectionRange(4, 4)
+    el.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    expect(component.value).toEqual('22!@#02/22 ')
+    expect(el.selectionStart).toEqual(11)
+  })
+  it('BACKSPACE clean target value of full delete', () => {
+    component.value = '22!@#02/22 '
+    let input = fixture.debugElement.query(By.css('input'));
+    let el = input.nativeElement;
+    el.value = ''
+    el.setSelectionRange(0, 0)
+    el.dispatchEvent(new InputEvent('input', { inputType: 'deleteContentBackward' }));
+    expect(component.value).toEqual('')
+    expect(el.selectionStart).toEqual(0)
+  })
 });
